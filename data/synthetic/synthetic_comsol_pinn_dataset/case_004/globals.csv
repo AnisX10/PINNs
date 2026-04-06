@@ -1,0 +1,2 @@
+case_id,Th_in_K,Tc_in_K,uh_in_mps,uc_in_mps,Th_in_bulk,Th_out_bulk,Tc_in_bulk,Tc_out_bulk,m_dot_hot,m_dot_cold,dp_hot,dp_cold,Q_total,effectiveness
+case_004,303.0,283.5,1.4,1.4,303.0,297.980644153727,283.5,284.151589995363,0.18492330282513694,1.4432373599283888,3120.072311836243,2512.6128303726605,3905.458341446875,0.2574028639114379
