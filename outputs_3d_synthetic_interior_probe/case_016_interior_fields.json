@@ -1,0 +1,27 @@
+{
+  "config": "C:\\Users\\TL\\Desktop\\PINN\\configs\\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml",
+  "checkpoint_path": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\\checkpoints\\best_model_3d.pt",
+  "operating_point": {
+    "case_id": "case_016",
+    "Th_in_K": 311.0,
+    "Tc_in_K": 283.5,
+    "uh_in_mps": 0.6,
+    "uc_in_mps": 1.4
+  },
+  "grid": {
+    "n_theta": 48,
+    "n_axial": 48,
+    "n_radial_hot": 16,
+    "n_radial_cold": 16,
+    "n_radial_wall": 10
+  },
+  "geometry": {
+    "hot_half_length_m": 0.205,
+    "cold_half_length_m": 0.205,
+    "hot_radius_m": 0.006499999999999936,
+    "cold_inner_radius_m": 0.008499999999999938,
+    "cold_outer_radius_m": 0.01999741758073977
+  },
+  "note": "These are model-predicted pseudo-volume fields for inspection and visualization. They are not independent ground-truth validation data.",
+  "output_csv": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_interior_probe\\case_016_interior_fields.csv"
+}

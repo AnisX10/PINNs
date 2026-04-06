@@ -1,0 +1,149 @@
+{
+  "config": "C:\\Users\\TL\\Desktop\\PINN\\configs\\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml",
+  "checkpoint_path": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\\checkpoints\\best_model_3d.pt",
+  "operating_point": {
+    "case_id": "case_016",
+    "Th_in_K": 311.0,
+    "Tc_in_K": 283.5,
+    "uh_in_mps": 0.6,
+    "uc_in_mps": 1.4
+  },
+  "sample_counts": {
+    "hot_points": 4000,
+    "cold_points": 4000,
+    "wall_points": 2500,
+    "interface_points": 4000
+  },
+  "model_parameters": {
+    "nu_hot_m2_s": 9.999997701015673e-07,
+    "nu_cold_m2_s": 9.999997701015673e-07,
+    "alpha_hot_m2_s": 9.999997701015673e-07,
+    "alpha_cold_m2_s": 9.999997701015673e-07,
+    "k_wall_w_mk": 16.0
+  },
+  "temperature_ranges": {
+    "hot_fluid_K": {
+      "mean": 304.96606117248535,
+      "std": 3.0431268074211113,
+      "min": 299.1688537597656,
+      "max": 310.2588806152344
+    },
+    "cold_fluid_K": {
+      "mean": 284.36635664367674,
+      "std": 0.28534290819153346,
+      "min": 282.96063232421875,
+      "max": 285.71893310546875
+    },
+    "wall_K": {
+      "mean": 293.79950693359376,
+      "std": 8.159566017550516,
+      "min": 276.51416015625,
+      "max": 311.0210876464844
+    }
+  },
+  "hot_fluid_residuals": {
+    "continuity": {
+      "mean_abs": 66.51410247878498,
+      "rmse": 110.47219850850942,
+      "p95_abs": 235.28507919311522,
+      "max_abs": 836.6851806640625
+    },
+    "momentum_u": {
+      "mean_abs": 78.22363286920962,
+      "rmse": 116.04264808488365,
+      "p95_abs": 257.70267333984367,
+      "max_abs": 688.2605590820312
+    },
+    "momentum_v": {
+      "mean_abs": 75.9720323404856,
+      "rmse": 111.26457512263983,
+      "p95_abs": 243.8418632507323,
+      "max_abs": 673.6365966796875
+    },
+    "momentum_w": {
+      "mean_abs": 4.6172453750716524,
+      "rmse": 6.7335037976099645,
+      "p95_abs": 12.983127880096436,
+      "max_abs": 75.03632354736328
+    },
+    "energy": {
+      "mean_abs": 36.168772210432216,
+      "rmse": 64.90332462997429,
+      "p95_abs": 129.08865585327146,
+      "max_abs": 698.724853515625
+    }
+  },
+  "cold_fluid_residuals": {
+    "continuity": {
+      "mean_abs": 29.04372911507124,
+      "rmse": 44.23765668333239,
+      "p95_abs": 95.97375411987299,
+      "max_abs": 296.5693054199219
+    },
+    "momentum_u": {
+      "mean_abs": 1429.3928236289453,
+      "rmse": 2190.813719904141,
+      "p95_abs": 4949.200781249996,
+      "max_abs": 11335.080078125
+    },
+    "momentum_v": {
+      "mean_abs": 2007.0239832687714,
+      "rmse": 2992.6197878272214,
+      "p95_abs": 6654.152001953123,
+      "max_abs": 15293.2783203125
+    },
+    "momentum_w": {
+      "mean_abs": 199.60256718280445,
+      "rmse": 307.91758073201845,
+      "p95_abs": 694.6261901855469,
+      "max_abs": 1789.7042236328125
+    },
+    "energy": {
+      "mean_abs": 33.435984909651566,
+      "rmse": 54.25067754626602,
+      "p95_abs": 117.8461803436279,
+      "max_abs": 452.9468994140625
+    }
+  },
+  "wall_residuals": {
+    "conduction": {
+      "mean_abs": 226999107.53590313,
+      "rmse": 286005730.5407747,
+      "p95_abs": 558340543.9999998,
+      "max_abs": 1155132800.0
+    }
+  },
+  "interface_residuals": {
+    "temp_hot_wall": {
+      "mean_abs": 2.568161720275879,
+      "rmse": 3.233101315773697,
+      "p95_abs": 6.359472656249996,
+      "max_abs": 12.152862548828125
+    },
+    "flux_hot_wall": {
+      "mean_abs": 222330.59077297975,
+      "rmse": 287539.2336169337,
+      "p95_abs": 586318.98125,
+      "max_abs": 1180096.5
+    },
+    "temp_wall_cold": {
+      "mean_abs": 3.322990493774414,
+      "rmse": 4.26885080418872,
+      "p95_abs": 8.723605346679683,
+      "max_abs": 18.75341796875
+    },
+    "flux_wall_cold": {
+      "mean_abs": 263228.28273580363,
+      "rmse": 337899.08577622456,
+      "p95_abs": 679982.0093749999,
+      "max_abs": 1618544.875
+    },
+    "ordering": {
+      "mean_abs": 0.0,
+      "rmse": 0.0,
+      "p95_abs": 0.0,
+      "max_abs": 0.0
+    }
+  },
+  "note": "This is a physics-consistency audit over model-predicted interior probe points. It is not independent volumetric validation against ground-truth CFD fields."
+}
