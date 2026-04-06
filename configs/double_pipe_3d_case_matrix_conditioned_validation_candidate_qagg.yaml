@@ -1,14 +1,14 @@
 project:
-  name: double_pipe_hex_pinn_3d_synthetic_conditioned_validation_candidate_qagg
+  name: double_pipe_hex_pinn_3d_case_matrix_conditioned_validation_candidate_qagg
   description: Conditioned 3D PINN with conservative boundary-state supervision and case-level heat-duty targets.
   mode: stationary_3d_multiphysics
 
 paths:
-  synthetic_root_dir: data/synthetic/synthetic_comsol_pinn_dataset
-  processed_dir: data/processed_3d_synthetic_conditioned_validation_candidate_qagg
-  output_dir: outputs_3d_synthetic_conditioned_validation_candidate_qagg
+  case_matrix_root_dir: data/case_matrix/comsol_case_matrix_dataset
+  processed_dir: data/processed_3d_case_matrix_conditioned_validation_candidate_qagg
+  output_dir: outputs_3d_case_matrix_conditioned_validation_candidate_qagg
 
-synthetic_3d:
+case_matrix_3d:
   case_ids:
     - case_001
     - case_002

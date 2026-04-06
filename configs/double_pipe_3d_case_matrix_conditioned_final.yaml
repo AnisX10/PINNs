@@ -1,31 +1,30 @@
 project:
-  name: double_pipe_hex_pinn_3d_synthetic_conditioned_validation_optphys
-  description: Physics-aware holdout validation optimization with positive pressure head and wall/interface supervision.
+  name: double_pipe_hex_pinn_3d_case_matrix_conditioned_final
+  description: Boundary-focused conditioned 3D PINN for case matrix unseen-case generalization.
   mode: stationary_3d_multiphysics
 
 paths:
-  synthetic_root_dir: data/synthetic/synthetic_comsol_pinn_dataset
-  processed_dir: data/processed_3d_synthetic_conditioned_validation_optphys
-  output_dir: outputs_3d_synthetic_qagg_positivep_optphys
+  case_matrix_root_dir: data/case_matrix/comsol_case_matrix_dataset
+  processed_dir: data/processed_3d_case_matrix_conditioned_final
+  output_dir: outputs_3d_case_matrix_conditioned_final
 
-synthetic_3d:
-  train_case_ids:
+case_matrix_3d:
+  case_ids:
     - case_001
     - case_002
+    - case_003
     - case_004
     - case_005
     - case_006
+    - case_007
     - case_008
+    - case_009
     - case_010
     - case_011
     - case_012
     - case_013
     - case_014
     - case_015
-  validation_case_ids:
-    - case_003
-    - case_007
-    - case_009
     - case_016
   flip_z_axis: true
 
@@ -74,12 +73,11 @@ model_3d:
   pressure_scale_pa: 1000.0
   temperature_reference_K: 293.15
   temperature_scale_K: 20.0
-  pressure_head_mode: positive_velocity_square
 
 training_3d:
   seed: 42
-  adam_epochs: 30
-  adam_lr: 4.0e-5
+  adam_epochs: 40
+  adam_lr: 7.0e-4
   hot_inlet_temperature_source: reference
   cold_inlet_temperature_source: reference
   balance_cases_in_surface_batches: true
@@ -99,8 +97,6 @@ training_3d:
     cold_inlet: 1.5
     cold_inner_wall: 1.5
     cold_outlet: 3.0
-  surface_velocity_scale_m_s: 1.25
-  case_heat_duty_scale_w: 4000.0
   collocation_hot: 512
   collocation_cold: 512
   collocation_wall: 256
@@ -110,21 +106,11 @@ training_3d:
   outlet_points_cold: 128
   interface_points: 256
   data_weight: 300.0
-  surface_velocity_weight: 2.0
-  surface_pressure_weight: 2.0
-  wall_temperature_weight: 60.0
-  wall_heat_flux_weight: 5.0e-4
-  wall_interface_temperature_weight: 100.0
-  case_bulk_temperature_weight: 120.0
-  case_pressure_drop_weight: 15.0
-  case_heat_duty_weight: 25.0
-  case_stream_heat_duty_weight: 40.0
-  case_energy_balance_weight: 25.0
   pde_weight: 0.0
   wall_pde_weight: 0.0
   inlet_weight: 50.0
   outlet_weight: 5.0
-  interface_temp_weight: 35.0
+  interface_temp_weight: 25.0
   interface_flux_weight: 0.0
   ordering_weight: 1.0
   reg_weight: 0.0
@@ -134,15 +120,10 @@ training_3d:
   warmup_wall_pde_scale: 0.1
   warmup_interface_flux_scale: 0.2
   grad_clip: 1.0
-  lbfgs_steps: 4
+  lbfgs_steps: 8
   lbfgs_lr: 0.5
   lbfgs_max_iter: 20
   lbfgs_history_size: 50
   lbfgs_collocation_multiplier: 2.0
-  validation_q_rel_weight: 0.7
-  validation_energy_gap_weight: 0.5
-  validation_dp_rel_weight: 0.2
-  validation_wall_target_weight: 0.4
-  validation_wall_stream_gap_weight: 0.4
-  print_every: 5
+  print_every: 10
   device: auto

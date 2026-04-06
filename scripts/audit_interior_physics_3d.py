@@ -14,7 +14,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from pinn_hex.config import apply_overrides, load_config
-from pinn_hex.data.synthetic import resolve_synthetic_3d_config
+from pinn_hex.data.case_matrix import resolve_case_matrix_3d_config
 from pinn_hex.models.factory_3d import build_double_pipe_pinn_3d
 from pinn_hex.physics.double_pipe import operating_point_from_config
 from pinn_hex.physics.double_pipe_3d import (
@@ -28,20 +28,20 @@ from pinn_hex.postprocess.operating_points import resolve_operating_point
 from pinn_hex.utils.repro import resolve_device
 
 
-DEFAULT_CONFIG = ROOT / "configs" / "double_pipe_3d_synthetic_conditioned_validation_optphys.yaml"
-DEFAULT_CHECKPOINT = ROOT / "outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune" / "checkpoints" / "best_model_3d.pt"
+DEFAULT_CONFIG = ROOT / "configs" / "double_pipe_3d_case_matrix_conditioned_validation_optphys.yaml"
+DEFAULT_CHECKPOINT = ROOT / "outputs_3d_case_matrix_qagg_positivep_optphys2_10ep_dpcal_walltune" / "checkpoints" / "best_model_3d.pt"
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Audit interior PDE/interface residuals for the final 3D PINN.")
     parser.add_argument("--config", default=str(DEFAULT_CONFIG), help="YAML config path.")
     parser.add_argument("--checkpoint", default=str(DEFAULT_CHECKPOINT), help="Checkpoint path.")
-    parser.add_argument("--case-id", default=None, help="Synthetic case id used to resolve the operating point.")
+    parser.add_argument("--case-id", default=None, help="Case Matrix case id used to resolve the operating point.")
     parser.add_argument("--Th-in", type=float, default=None, help="Hot inlet temperature [K].")
     parser.add_argument("--Tc-in", type=float, default=None, help="Cold inlet temperature [K].")
     parser.add_argument("--uh-in", type=float, default=None, help="Hot inlet velocity [m/s].")
     parser.add_argument("--uc-in", type=float, default=None, help="Cold inlet velocity [m/s].")
-    parser.add_argument("--output-json", default="outputs_3d_synthetic_interior_probe/interior_physics_audit.json", help="Audit JSON path.")
+    parser.add_argument("--output-json", default="outputs_3d_case_matrix_interior_probe/interior_physics_audit.json", help="Audit JSON path.")
     parser.add_argument("--hot-points", type=int, default=4000, help="Hot-fluid interior sample count.")
     parser.add_argument("--cold-points", type=int, default=4000, help="Cold-fluid interior sample count.")
     parser.add_argument("--wall-points", type=int, default=2500, help="Wall interior sample count.")
@@ -93,7 +93,7 @@ def main() -> None:
 
     config = load_config(args.config)
     config = apply_overrides(config, list(args.set))
-    config = resolve_synthetic_3d_config(config)
+    config = resolve_case_matrix_3d_config(config)
     geometry = geometry3d_from_config(config)
     operating = operating_point_from_config(config)
     device = resolve_device(str(config["training_3d"].get("device", "auto")))

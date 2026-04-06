@@ -15,7 +15,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from pinn_hex.config import apply_overrides, load_config
-from pinn_hex.data.synthetic import OPERATING_COLUMNS, resolve_synthetic_3d_config
+from pinn_hex.data.case_matrix import OPERATING_COLUMNS, resolve_case_matrix_3d_config
 from pinn_hex.data.threed import build_3d_case_artifacts
 from pinn_hex.models.factory_3d import build_double_pipe_pinn_3d
 from pinn_hex.physics.double_pipe import operating_point_from_config
@@ -71,7 +71,7 @@ def main() -> None:
     args = build_parser().parse_args()
     config = load_config(args.config)
     config = apply_overrides(config, list(args.set))
-    config = resolve_synthetic_3d_config(config)
+    config = resolve_case_matrix_3d_config(config)
     artifacts = build_3d_case_artifacts(config)
     geometry = geometry3d_from_config(config)
     operating = operating_point_from_config(config)

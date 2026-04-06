@@ -14,13 +14,13 @@ def resolve_operating_point(
     uc_in: float | None,
 ) -> dict[str, float | str]:
     if case_id:
-        root_dir = Path(config["paths"]["synthetic_root_dir"])
+        root_dir = Path(config["paths"]["case_matrix_root_dir"])
         manifest_path = root_dir / "case_manifest.csv"
         if manifest_path.exists():
             manifest = pd.read_csv(manifest_path)
             match = manifest[manifest["case_id"] == case_id]
             if match.empty:
-                raise ValueError(f"Unknown synthetic case id in manifest: {case_id}")
+                raise ValueError(f"Unknown case matrix case id in manifest: {case_id}")
             row = match.iloc[0]
             return {
                 "case_id": str(case_id),

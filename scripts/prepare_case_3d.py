@@ -12,7 +12,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from pinn_hex.config import load_config
-from pinn_hex.data.synthetic import resolve_synthetic_3d_config
+from pinn_hex.data.case_matrix import resolve_case_matrix_3d_config
 from pinn_hex.data.threed import build_3d_case_artifacts, save_3d_case_artifacts
 
 
@@ -20,7 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Prepare 3D multiphysics PINN surface datasets.")
     parser.add_argument(
         "--config",
-        default=str(ROOT / "configs" / "double_pipe_3d_synthetic_case001.yaml"),
+        default=str(ROOT / "configs" / "double_pipe_3d_case_matrix_case001.yaml"),
         help="Path to the YAML configuration file.",
     )
     return parser
@@ -28,7 +28,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     args = build_parser().parse_args()
-    config = resolve_synthetic_3d_config(load_config(args.config))
+    config = resolve_case_matrix_3d_config(load_config(args.config))
     artifacts = build_3d_case_artifacts(config)
     save_3d_case_artifacts(artifacts, config["paths"]["processed_dir"])
 

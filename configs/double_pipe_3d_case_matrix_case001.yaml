@@ -1,31 +1,15 @@
 project:
-  name: double_pipe_hex_pinn_3d_synthetic_conditioned_validated_candidate
-  description: Conditioned 3D PINN with boundary-state and wall-interface supervision for synthetic holdout validation.
+  name: double_pipe_hex_pinn_3d_case_matrix_case001
+  description: 3D multiphysics PINN driven by the case matrix boundary-only case dataset.
   mode: stationary_3d_multiphysics
 
 paths:
-  synthetic_root_dir: data/synthetic/synthetic_comsol_pinn_dataset
-  processed_dir: data/processed_3d_synthetic_conditioned_validated_candidate
-  output_dir: outputs_3d_synthetic_conditioned_validated_candidate
+  case_matrix_root_dir: data/case_matrix/comsol_case_matrix_dataset
+  processed_dir: data/processed_3d_case_matrix_case001
+  output_dir: outputs_3d_case_matrix_case001
 
-synthetic_3d:
-  case_ids:
-    - case_001
-    - case_002
-    - case_003
-    - case_004
-    - case_005
-    - case_006
-    - case_007
-    - case_008
-    - case_009
-    - case_010
-    - case_011
-    - case_012
-    - case_013
-    - case_014
-    - case_015
-    - case_016
+case_matrix_3d:
+  case_id: case_001
   flip_z_axis: true
 
 reference_conditions:
@@ -57,48 +41,41 @@ model_3d:
   activation: tanh
   fourier_features: 24
   fourier_sigma: 4.0
-  condition_on_operating_point: true
-  conditioning_feature_mode: raw_plus_derived
-  temperature_head_mode: hot_span_square
   learn_hot_inlet_temperature: true
   learn_cold_inlet_temperature: true
-  learn_wall_conductivity: false
+  learn_wall_conductivity: true
   initial_nu_hot_m2_s: 1.0e-6
   initial_nu_cold_m2_s: 1.0e-6
   initial_alpha_hot_m2_s: 1.0e-6
   initial_alpha_cold_m2_s: 1.0e-6
   initial_k_wall_w_mk: 16.0
   velocity_correction_scale_m_s: 0.25
-  velocity_condition_scale_m_s: 1.4
   pressure_scale_pa: 1000.0
   temperature_reference_K: 293.15
   temperature_scale_K: 20.0
 
 training_3d:
   seed: 42
-  adam_epochs: 60
-  adam_lr: 5.0e-4
-  hot_inlet_temperature_source: reference
-  cold_inlet_temperature_source: reference
-  balance_cases_in_surface_batches: true
+  adam_epochs: 40
+  adam_lr: 7.0e-4
+  hot_inlet_temperature_source: train_boundary_mean
+  cold_inlet_temperature_source: train_boundary_mean
   surface_batch_hot: 1024
   surface_batch_cold: 1024
   surface_boundary_sampling_weights:
     hot_inlet: 2.0
-    hot_outlet: 6.0
-    hot_wall: 3.0
+    hot_outlet: 4.0
+    hot_wall: 1.0
     cold_inlet: 2.0
-    cold_inner_wall: 3.0
+    cold_inner_wall: 2.0
     cold_outlet: 4.0
   surface_boundary_loss_weights:
     hot_inlet: 1.5
-    hot_outlet: 6.0
-    hot_wall: 2.5
+    hot_outlet: 3.0
+    hot_wall: 1.0
     cold_inlet: 1.5
-    cold_inner_wall: 2.5
+    cold_inner_wall: 1.5
     cold_outlet: 3.0
-  surface_velocity_scale_m_s: 1.25
-  surface_heat_flux_scale_w_m2: 5000.0
   collocation_hot: 512
   collocation_cold: 512
   collocation_wall: 256
@@ -107,20 +84,16 @@ training_3d:
   outlet_points_hot: 128
   outlet_points_cold: 128
   interface_points: 256
-  data_weight: 220.0
-  surface_velocity_weight: 60.0
-  surface_pressure_weight: 8.0
-  wall_temperature_weight: 120.0
-  wall_heat_flux_weight: 20.0
-  pde_weight: 0.02
-  wall_pde_weight: 0.05
+  data_weight: 200.0
+  pde_weight: 1.0e-5
+  wall_pde_weight: 1.0e-6
   inlet_weight: 50.0
   outlet_weight: 5.0
-  interface_temp_weight: 40.0
-  interface_flux_weight: 0.5
-  ordering_weight: 2.0
-  reg_weight: 0.0
-  wall_reg_weight: 0.0
+  interface_temp_weight: 25.0
+  interface_flux_weight: 1.0e-4
+  ordering_weight: 1.0
+  reg_weight: 1.0e-4
+  wall_reg_weight: 1.0e-3
   warmup_epochs: 20
   warmup_pde_scale: 0.1
   warmup_wall_pde_scale: 0.1

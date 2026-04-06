@@ -9,23 +9,23 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from pinn_hex.data.synthetic import (
-    SYNTHETIC_DATASET_FOLDER_ID,
-    download_synthetic_dataset,
+from pinn_hex.data.case_matrix import (
+    CASE_MATRIX_DATASET_FOLDER_ID,
+    download_case_matrix_dataset,
     save_download_summary,
 )
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Download the shared synthetic boundary-case dataset from Google Drive.")
+    parser = argparse.ArgumentParser(description="Download the shared case-matrix boundary-case dataset from Google Drive.")
     parser.add_argument(
         "--output-dir",
-        default=str(ROOT / "data" / "synthetic" / "synthetic_comsol_pinn_dataset"),
+        default=str(ROOT / "data" / "case_matrix" / "comsol_case_matrix_dataset"),
         help="Local directory where the dataset should be stored.",
     )
     parser.add_argument(
         "--folder-id",
-        default=SYNTHETIC_DATASET_FOLDER_ID,
+        default=CASE_MATRIX_DATASET_FOLDER_ID,
         help="Google Drive folder id for the shared dataset.",
     )
     parser.add_argument(
@@ -50,14 +50,14 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = build_parser().parse_args()
     case_ids = None if args.all_cases else list(args.case_ids)
-    summary = download_synthetic_dataset(
+    summary = download_case_matrix_dataset(
         output_dir=args.output_dir,
         folder_id=args.folder_id,
         case_ids=case_ids,
         overwrite=bool(args.overwrite),
     )
     summary_path = save_download_summary(summary, args.output_dir)
-    print(f"Downloaded synthetic dataset to: {Path(args.output_dir).resolve()}")
+    print(f"Downloaded case matrix dataset to: {Path(args.output_dir).resolve()}")
     print(f"Saved download summary to: {summary_path.resolve()}")
     for case_id, case_summary in summary["cases"].items():
         missing = case_summary["missing_expected_files"]

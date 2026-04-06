@@ -10,21 +10,21 @@ import pandas as pd
 from matplotlib.patches import FancyBboxPatch
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA_ROOT = ROOT / "data" / "synthetic" / "synthetic_comsol_pinn_dataset"
+DATA_ROOT = ROOT / "data" / "case_matrix" / "comsol_case_matrix_dataset"
 
-DEFAULT_CV_SUMMARY = ROOT / "outputs_3d_synthetic_conditioned_case_cv_final" / "case_cv_summary.json"
-DEFAULT_CV_CASES = ROOT / "outputs_3d_synthetic_conditioned_case_cv_final" / "case_cv_case_summary.csv"
+DEFAULT_CV_SUMMARY = ROOT / "outputs_3d_case_matrix_conditioned_case_cv_final" / "case_cv_summary.json"
+DEFAULT_CV_CASES = ROOT / "outputs_3d_case_matrix_conditioned_case_cv_final" / "case_cv_case_summary.csv"
 DEFAULT_VALIDATION_SUMMARY = (
     ROOT
-    / "outputs_3d_synthetic_final_validation_optphys2_10ep_dpcal_walltune_tempcal"
+    / "outputs_3d_case_matrix_final_validation_optphys2_10ep_dpcal_walltune_tempcal"
     / "final_validation_summary.json"
 )
 DEFAULT_VALIDATION_CASES = (
     ROOT
-    / "outputs_3d_synthetic_final_validation_optphys2_10ep_dpcal_walltune_tempcal"
+    / "outputs_3d_case_matrix_final_validation_optphys2_10ep_dpcal_walltune_tempcal"
     / "final_validation_case_summary.csv"
 )
-DEFAULT_INTERIOR_AUDIT = ROOT / "outputs_3d_synthetic_interior_probe" / "case_016_interior_physics_audit.json"
+DEFAULT_INTERIOR_AUDIT = ROOT / "outputs_3d_case_matrix_interior_probe" / "case_016_interior_physics_audit.json"
 DEFAULT_REPORT_ROOT = ROOT / "reports"
 
 
@@ -82,7 +82,7 @@ def _plot_scorecard(cv_summary: dict, validation_summary: dict, output_path: Pat
     ax.text(
         0.03,
         0.875,
-        "Final scope: synthetic boundary surrogate with physics-audited interior behavior. Not a fully volumetric CFD validation.",
+        "Final scope: case matrix boundary surrogate with physics-audited interior behavior. Not a fully volumetric CFD validation.",
         fontsize=11,
         color="#3d556b",
         transform=ax.transAxes,
@@ -91,7 +91,7 @@ def _plot_scorecard(cv_summary: dict, validation_summary: dict, output_path: Pat
     _card(ax, 0.03, 0.53, 0.22, 0.24, "Holdout Boundary RMSE", f"{rmse:.3f} K", "Target < 0.8 K on the reserved holdout split.", _status_color(rmse, 0.8))
     _card(ax, 0.28, 0.53, 0.22, 0.24, "Mean Heat-Duty Error", f"{q_error:.2f}%", "Target < 10% on holdout cases.", _status_color(q_error, 10.0))
     _card(ax, 0.53, 0.53, 0.22, 0.24, "Mean Energy Gap", f"{energy_gap:.2f}%", "Near the target, but still the main physics gap.", _status_color(energy_gap, 10.0))
-    _card(ax, 0.78, 0.53, 0.19, 0.24, "4-Fold CV Mean RMSE", f"{cv_rmse:.3f} K", "Unseen-case average across all 16 synthetic cases.", _status_color(cv_rmse, 0.8))
+    _card(ax, 0.78, 0.53, 0.19, 0.24, "4-Fold CV Mean RMSE", f"{cv_rmse:.3f} K", "Unseen-case average across all 16 case matrix cases.", _status_color(cv_rmse, 0.8))
 
     bullets = [
         f"Best holdout case: {physics['best_case_id']} at {physics['best_case_combined_rmse_K']:.3f} K combined RMSE.",
@@ -126,9 +126,9 @@ def _plot_case_cv(cv_case_df: pd.DataFrame, output_path: Path) -> None:
     ax.set_facecolor("#fbfaf7")
     ax.bar(ordered["case_id"], ordered["combined_rmse_K"], color=colors, width=0.72)
     ax.axhline(0.8, color="#146c43", linestyle="--", linewidth=1.5, label="Target 0.8 K")
-    ax.set_title("4-Fold Unseen-Case RMSE By Synthetic Case", fontsize=16, fontweight="bold", color="#102a43")
+    ax.set_title("4-Fold Unseen-Case RMSE By Case Matrix Case", fontsize=16, fontweight="bold", color="#102a43")
     ax.set_ylabel("Combined RMSE [K]")
-    ax.set_xlabel("Synthetic Case")
+    ax.set_xlabel("Case Matrix Case")
     ax.tick_params(axis="x", rotation=45)
     ax.grid(axis="y", alpha=0.25)
     ax.legend(frameon=False)
@@ -255,7 +255,7 @@ def _plot_dataset_operating_space(case_manifest: pd.DataFrame, output_path: Path
     )
     for _, row in case_manifest.iterrows():
         axes[0].text(float(row["Th_in_K"]) + 0.08, float(row["Tc_in_K"]) + 0.05, str(row["case_id"]), fontsize=8, color="#243b53")
-    axes[0].set_title("Synthetic Operating Matrix", fontsize=15, fontweight="bold", color="#102a43")
+    axes[0].set_title("Case Matrix Operating Matrix", fontsize=15, fontweight="bold", color="#102a43")
     axes[0].set_xlabel("Hot inlet [K]")
     axes[0].set_ylabel("Cold inlet [K]")
     axes[0].grid(alpha=0.22)
@@ -443,8 +443,8 @@ def main() -> None:
             "cv_mean_combined_rmse_K": float(cv_summary["aggregate"]["mean_combined_rmse_K"]),
         },
         "artifacts": {
-            "checkpoint": str((ROOT / "outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune" / "checkpoints" / "best_model_3d.pt").resolve()),
-            "temperature_calibration": str((ROOT / "outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune" / "boundary_temperature_calibration.json").resolve()),
+            "checkpoint": str((ROOT / "outputs_3d_case_matrix_qagg_positivep_optphys2_10ep_dpcal_walltune" / "checkpoints" / "best_model_3d.pt").resolve()),
+            "temperature_calibration": str((ROOT / "outputs_3d_case_matrix_qagg_positivep_optphys2_10ep_dpcal_walltune" / "boundary_temperature_calibration.json").resolve()),
             "validation_summary": str(DEFAULT_VALIDATION_SUMMARY.resolve()),
             "validation_case_summary": str(DEFAULT_VALIDATION_CASES.resolve()),
             "cv_summary": str(DEFAULT_CV_SUMMARY.resolve()),
@@ -462,7 +462,7 @@ def main() -> None:
             "dataset_boundary_heatmaps": str(dataset_heatmaps_path.resolve()),
         },
         "notes": {
-            "scope": "Boundary-validated synthetic surrogate with interior physics audit.",
+            "scope": "Boundary-validated case matrix surrogate with interior physics audit.",
             "limitation": "No independent interior CFD field holdout is included yet.",
         },
     }

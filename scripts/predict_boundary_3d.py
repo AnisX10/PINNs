@@ -15,7 +15,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from pinn_hex.config import apply_overrides, load_config
-from pinn_hex.data.synthetic import resolve_synthetic_3d_config
+from pinn_hex.data.case_matrix import resolve_case_matrix_3d_config
 from pinn_hex.models.factory_3d import build_double_pipe_pinn_3d
 from pinn_hex.postprocess.temperature_calibration import apply_temperature_calibration, load_temperature_calibration
 from pinn_hex.physics.double_pipe import operating_point_from_config
@@ -27,7 +27,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Predict boundary states for a conditioned 3D PINN checkpoint ensemble.")
     parser.add_argument(
         "--config",
-        default=str(ROOT / "configs" / "double_pipe_3d_synthetic_conditioned_final.yaml"),
+        default=str(ROOT / "configs" / "double_pipe_3d_case_matrix_conditioned_final.yaml"),
         help="Path to the YAML configuration file.",
     )
     parser.add_argument(
@@ -38,7 +38,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--checkpoint-root",
-        default=str(ROOT / "outputs_3d_synthetic_conditioned_case_cv_final"),
+        default=str(ROOT / "outputs_3d_case_matrix_conditioned_case_cv_final"),
         help="Checkpoint root used when --checkpoint is omitted.",
     )
     parser.add_argument(
@@ -54,7 +54,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--uc-in", type=float, required=True, help="Cold inlet velocity [m/s].")
     parser.add_argument(
         "--output",
-        default="outputs_3d_synthetic_boundary_inference/boundary_state_predictions.csv",
+        default="outputs_3d_case_matrix_boundary_inference/boundary_state_predictions.csv",
         help="CSV path for predicted boundary states.",
     )
     parser.add_argument(
@@ -326,7 +326,7 @@ def main() -> None:
 
     config = load_config(args.config)
     config = apply_overrides(config, list(args.set))
-    config = resolve_synthetic_3d_config(config)
+    config = resolve_case_matrix_3d_config(config)
     geometry = geometry3d_from_config(config)
     operating = operating_point_from_config(config)
     device = resolve_device(str(config["training_3d"].get("device", "auto")))

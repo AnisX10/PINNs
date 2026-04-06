@@ -10,8 +10,8 @@ import numpy as np
 import pandas as pd
 import requests
 
-SYNTHETIC_DATASET_FOLDER_ID = "15BdOSbvnwOpUZYuDWLjArWPNAZ5eFDND"
-SYNTHETIC_REQUIRED_CASE_FILES = (
+CASE_MATRIX_DATASET_FOLDER_ID = "15BdOSbvnwOpUZYuDWLjArWPNAZ5eFDND"
+CASE_MATRIX_REQUIRED_CASE_FILES = (
     "globals.csv",
     "hot_inlet.csv",
     "hot_outlet.csv",
@@ -64,9 +64,9 @@ def download_drive_file(file_id: str, destination: str | Path, timeout_s: float 
     return output_path
 
 
-def download_synthetic_dataset(
+def download_case_matrix_dataset(
     output_dir: str | Path,
-    folder_id: str = SYNTHETIC_DATASET_FOLDER_ID,
+    folder_id: str = CASE_MATRIX_DATASET_FOLDER_ID,
     case_ids: list[str] | None = None,
     overwrite: bool = False,
 ) -> dict[str, object]:
@@ -87,7 +87,7 @@ def download_synthetic_dataset(
 
     missing_cases = [case_id for case_id in selected_case_ids if case_id not in case_folders]
     if missing_cases:
-        raise FileNotFoundError(f"Unknown synthetic case ids: {missing_cases}")
+        raise FileNotFoundError(f"Unknown case matrix case ids: {missing_cases}")
 
     case_summary: dict[str, dict[str, object]] = {}
     for case_id in selected_case_ids:
@@ -105,7 +105,7 @@ def download_synthetic_dataset(
             downloaded.append(str(destination))
         case_summary[case_id] = {
             "downloaded_files": file_names,
-            "missing_expected_files": sorted(set(SYNTHETIC_REQUIRED_CASE_FILES) - set(file_names)),
+            "missing_expected_files": sorted(set(CASE_MATRIX_REQUIRED_CASE_FILES) - set(file_names)),
         }
 
     return {
@@ -116,55 +116,55 @@ def download_synthetic_dataset(
     }
 
 
-def synthetic_case_dir_from_config(config: dict) -> Path | None:
+def case_matrix_case_dir_from_config(config: dict) -> Path | None:
     paths = config.get("paths", {})
-    if paths.get("synthetic_case_dir"):
-        return Path(paths["synthetic_case_dir"])
-    if paths.get("synthetic_root_dir") and config.get("synthetic_3d", {}).get("case_id"):
-        return Path(paths["synthetic_root_dir"]) / str(config["synthetic_3d"]["case_id"])
+    if paths.get("case_matrix_case_dir"):
+        return Path(paths["case_matrix_case_dir"])
+    if paths.get("case_matrix_root_dir") and config.get("case_matrix_3d", {}).get("case_id"):
+        return Path(paths["case_matrix_root_dir"]) / str(config["case_matrix_3d"]["case_id"])
     return None
 
 
-def synthetic_case_ids_from_config(config: dict) -> list[str]:
-    synthetic_cfg = config.get("synthetic_3d", {})
-    train_case_ids = synthetic_cfg.get("train_case_ids")
-    validation_case_ids = synthetic_cfg.get("validation_case_ids")
+def case_matrix_case_ids_from_config(config: dict) -> list[str]:
+    case_matrix_cfg = config.get("case_matrix_3d", {})
+    train_case_ids = case_matrix_cfg.get("train_case_ids")
+    validation_case_ids = case_matrix_cfg.get("validation_case_ids")
     if train_case_ids or validation_case_ids:
         combined = [str(case_id) for case_id in (train_case_ids or [])]
         combined.extend(str(case_id) for case_id in (validation_case_ids or []))
         return list(dict.fromkeys(combined))
-    case_ids = synthetic_cfg.get("case_ids")
+    case_ids = case_matrix_cfg.get("case_ids")
     if case_ids:
         return [str(case_id) for case_id in case_ids]
-    if synthetic_cfg.get("case_id"):
-        return [str(synthetic_cfg["case_id"])]
-    case_dir = synthetic_case_dir_from_config(config)
+    if case_matrix_cfg.get("case_id"):
+        return [str(case_matrix_cfg["case_id"])]
+    case_dir = case_matrix_case_dir_from_config(config)
     if case_dir is not None:
         return [case_dir.name]
     return []
 
 
-def synthetic_case_dirs_from_config(config: dict) -> list[Path]:
+def case_matrix_case_dirs_from_config(config: dict) -> list[Path]:
     paths = config.get("paths", {})
-    case_dir = synthetic_case_dir_from_config(config)
-    if case_dir is not None and not synthetic_case_ids_from_config(config):
+    case_dir = case_matrix_case_dir_from_config(config)
+    if case_dir is not None and not case_matrix_case_ids_from_config(config):
         return [case_dir]
-    root_dir = paths.get("synthetic_root_dir")
-    if root_dir and synthetic_case_ids_from_config(config):
-        return [Path(root_dir) / case_id for case_id in synthetic_case_ids_from_config(config)]
+    root_dir = paths.get("case_matrix_root_dir")
+    if root_dir and case_matrix_case_ids_from_config(config):
+        return [Path(root_dir) / case_id for case_id in case_matrix_case_ids_from_config(config)]
     if case_dir is not None:
         return [case_dir]
     return []
 
 
-def uses_synthetic_3d_data(config: dict) -> bool:
-    return bool(synthetic_case_dirs_from_config(config))
+def uses_case_matrix_3d_data(config: dict) -> bool:
+    return bool(case_matrix_case_dirs_from_config(config))
 
 
-def synthetic_case_split_ids_from_config(config: dict) -> tuple[list[str], list[str]]:
-    synthetic_cfg = config.get("synthetic_3d", {})
-    train_case_ids = [str(case_id) for case_id in synthetic_cfg.get("train_case_ids", [])]
-    validation_case_ids = [str(case_id) for case_id in synthetic_cfg.get("validation_case_ids", [])]
+def case_matrix_case_split_ids_from_config(config: dict) -> tuple[list[str], list[str]]:
+    case_matrix_cfg = config.get("case_matrix_3d", {})
+    train_case_ids = [str(case_id) for case_id in case_matrix_cfg.get("train_case_ids", [])]
+    validation_case_ids = [str(case_id) for case_id in case_matrix_cfg.get("validation_case_ids", [])]
     return train_case_ids, validation_case_ids
 
 
@@ -225,16 +225,16 @@ def _split_by_case_holdout(
     missing_train = sorted(train_case_id_set - available_case_id_set)
     missing_validation = sorted(validation_case_id_set - available_case_id_set)
     if missing_train:
-        raise ValueError(f"Unknown train_case_ids in synthetic config: {missing_train}")
+        raise ValueError(f"Unknown train_case_ids in case matrix config: {missing_train}")
     if missing_validation:
-        raise ValueError(f"Unknown validation_case_ids in synthetic config: {missing_validation}")
+        raise ValueError(f"Unknown validation_case_ids in case matrix config: {missing_validation}")
 
     if train_case_ids and validation_case_ids:
         assigned_case_ids = train_case_id_set | validation_case_id_set
         unassigned = sorted(available_case_id_set - assigned_case_ids)
         if unassigned:
             raise ValueError(
-                "Synthetic case-holdout split left unassigned cases. "
+                "Case Matrix case-holdout split left unassigned cases. "
                 f"Specify all selected cases explicitly or omit one side of the split: {unassigned}"
             )
     elif validation_case_ids:
@@ -270,7 +270,7 @@ def _read_case_globals(case_dir: Path) -> dict[str, float | str]:
     globals_path = case_dir / "globals.csv"
     frame = pd.read_csv(globals_path)
     if frame.empty:
-        raise ValueError(f"Synthetic globals file is empty: {globals_path}")
+        raise ValueError(f"Case Matrix globals file is empty: {globals_path}")
     row = frame.iloc[0].to_dict()
     return {str(key): value for key, value in row.items()}
 
@@ -308,24 +308,24 @@ def _derive_geometry(case_dir: Path, flip_z_axis: bool, surface_tolerance_m: flo
     }
 
 
-def resolve_synthetic_3d_config(config: dict) -> dict:
-    if not uses_synthetic_3d_data(config):
+def resolve_case_matrix_3d_config(config: dict) -> dict:
+    if not uses_case_matrix_3d_data(config):
         return config
 
     resolved = deepcopy(config)
-    case_dirs = synthetic_case_dirs_from_config(resolved)
+    case_dirs = case_matrix_case_dirs_from_config(resolved)
     if not case_dirs:
         return resolved
     missing_dirs = [case_dir for case_dir in case_dirs if not case_dir.exists()]
     if missing_dirs:
         missing = ", ".join(str(path) for path in missing_dirs)
         raise FileNotFoundError(
-            f"Synthetic case directory does not exist: {missing}. "
-            f"Download it first with scripts/download_synthetic_dataset.py."
+            f"Case Matrix case directory does not exist: {missing}. "
+            f"Download it first with scripts/download_case_matrix_dataset.py."
         )
 
-    synthetic_cfg = resolved.setdefault("synthetic_3d", {})
-    flip_z_axis = bool(synthetic_cfg.get("flip_z_axis", True))
+    case_matrix_cfg = resolved.setdefault("case_matrix_3d", {})
+    flip_z_axis = bool(case_matrix_cfg.get("flip_z_axis", True))
     surface_tolerance_m = float(resolved.get("geometry_3d", {}).get("surface_tolerance_m", 1.0e-4))
     geometry_rows = [_derive_geometry(case_dir, flip_z_axis, surface_tolerance_m) for case_dir in case_dirs]
     globals_rows = [_read_case_globals(case_dir) for case_dir in case_dirs]
@@ -350,25 +350,25 @@ def resolve_synthetic_3d_config(config: dict) -> dict:
 
     paths = resolved.setdefault("paths", {})
     if len(case_dirs) == 1:
-        paths["synthetic_case_dir"] = str(case_dirs[0])
-        synthetic_cfg.setdefault("case_id", case_dirs[0].name)
+        paths["case_matrix_case_dir"] = str(case_dirs[0])
+        case_matrix_cfg.setdefault("case_id", case_dirs[0].name)
     else:
-        paths.pop("synthetic_case_dir", None)
-        synthetic_cfg["case_ids"] = [case_dir.name for case_dir in case_dirs]
+        paths.pop("case_matrix_case_dir", None)
+        case_matrix_cfg["case_ids"] = [case_dir.name for case_dir in case_dirs]
     return resolved
 
 
-def build_synthetic_3d_case_artifacts(config: dict) -> dict:
-    case_dirs = synthetic_case_dirs_from_config(config)
+def build_case_matrix_3d_case_artifacts(config: dict) -> dict:
+    case_dirs = case_matrix_case_dirs_from_config(config)
     if not case_dirs:
-        raise ValueError("Synthetic 3D case directory was not configured.")
+        raise ValueError("Case Matrix 3D case directory was not configured.")
     missing_dirs = [case_dir for case_dir in case_dirs if not case_dir.exists()]
     if missing_dirs:
         missing = ", ".join(str(path) for path in missing_dirs)
-        raise FileNotFoundError(f"Synthetic case directory does not exist: {missing}")
+        raise FileNotFoundError(f"Case Matrix case directory does not exist: {missing}")
 
-    synthetic_cfg = config.get("synthetic_3d", {})
-    flip_z_axis = bool(synthetic_cfg.get("flip_z_axis", True))
+    case_matrix_cfg = config.get("case_matrix_3d", {})
+    flip_z_axis = bool(case_matrix_cfg.get("flip_z_axis", True))
     hot_frames: list[pd.DataFrame] = []
     cold_frames: list[pd.DataFrame] = []
     per_case_summary: dict[str, dict[str, object]] = {}
@@ -421,7 +421,7 @@ def build_synthetic_3d_case_artifacts(config: dict) -> dict:
         per_case_summary[case_id] = {
             "case_dir": str(case_dir),
             "available_case_files": available_case_files,
-            "missing_expected_files": sorted(set(SYNTHETIC_REQUIRED_CASE_FILES) - set(available_case_files)),
+            "missing_expected_files": sorted(set(CASE_MATRIX_REQUIRED_CASE_FILES) - set(available_case_files)),
             "globals": {
                 key: float(value) if isinstance(value, (np.floating, float, int, np.integer)) else value
                 for key, value in globals_row.items()
@@ -433,7 +433,7 @@ def build_synthetic_3d_case_artifacts(config: dict) -> dict:
     hot_surface = pd.concat(hot_frames, ignore_index=True)
     cold_surface = pd.concat(cold_frames, ignore_index=True)
 
-    train_case_ids, validation_case_ids = synthetic_case_split_ids_from_config(config)
+    train_case_ids, validation_case_ids = case_matrix_case_split_ids_from_config(config)
     if train_case_ids or validation_case_ids:
         split_strategy = "case_holdout"
         hot_train, hot_val = _split_by_case_holdout(hot_surface, train_case_ids, validation_case_ids)
@@ -447,9 +447,9 @@ def build_synthetic_3d_case_artifacts(config: dict) -> dict:
     train_case_ids_resolved = [str(case_id) for case_id in hot_train["case_id"].drop_duplicates().tolist()]
     validation_case_ids_resolved = [str(case_id) for case_id in hot_val["case_id"].drop_duplicates().tolist()]
     summary = {
-        "source_format": "synthetic_boundary_case",
+        "source_format": "case_matrix_boundary_case",
         "case_ids": [case_dir.name for case_dir in case_dirs],
-        "case_id": str(synthetic_cfg.get("case_id", case_dirs[0].name)),
+        "case_id": str(case_matrix_cfg.get("case_id", case_dirs[0].name)),
         "flip_z_axis": flip_z_axis,
         "split_strategy": split_strategy,
         "train_case_ids": train_case_ids_resolved,

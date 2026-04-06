@@ -1,14 +1,14 @@
 project:
-  name: double_pipe_hex_pinn_3d_synthetic_conditioned_final
-  description: Boundary-focused conditioned 3D PINN for synthetic unseen-case generalization.
+  name: double_pipe_hex_pinn_3d_case_matrix_conditioned_validated_candidate
+  description: Conditioned 3D PINN with boundary-state and wall-interface supervision for case matrix holdout validation.
   mode: stationary_3d_multiphysics
 
 paths:
-  synthetic_root_dir: data/synthetic/synthetic_comsol_pinn_dataset
-  processed_dir: data/processed_3d_synthetic_conditioned_final
-  output_dir: outputs_3d_synthetic_conditioned_final
+  case_matrix_root_dir: data/case_matrix/comsol_case_matrix_dataset
+  processed_dir: data/processed_3d_case_matrix_conditioned_validated_candidate
+  output_dir: outputs_3d_case_matrix_conditioned_validated_candidate
 
-synthetic_3d:
+case_matrix_3d:
   case_ids:
     - case_001
     - case_002
@@ -76,8 +76,8 @@ model_3d:
 
 training_3d:
   seed: 42
-  adam_epochs: 40
-  adam_lr: 7.0e-4
+  adam_epochs: 60
+  adam_lr: 5.0e-4
   hot_inlet_temperature_source: reference
   cold_inlet_temperature_source: reference
   balance_cases_in_surface_batches: true
@@ -86,17 +86,19 @@ training_3d:
   surface_boundary_sampling_weights:
     hot_inlet: 2.0
     hot_outlet: 6.0
-    hot_wall: 2.0
+    hot_wall: 3.0
     cold_inlet: 2.0
-    cold_inner_wall: 2.0
+    cold_inner_wall: 3.0
     cold_outlet: 4.0
   surface_boundary_loss_weights:
     hot_inlet: 1.5
     hot_outlet: 6.0
-    hot_wall: 2.0
+    hot_wall: 2.5
     cold_inlet: 1.5
-    cold_inner_wall: 1.5
+    cold_inner_wall: 2.5
     cold_outlet: 3.0
+  surface_velocity_scale_m_s: 1.25
+  surface_heat_flux_scale_w_m2: 5000.0
   collocation_hot: 512
   collocation_cold: 512
   collocation_wall: 256
@@ -105,14 +107,18 @@ training_3d:
   outlet_points_hot: 128
   outlet_points_cold: 128
   interface_points: 256
-  data_weight: 300.0
-  pde_weight: 0.0
-  wall_pde_weight: 0.0
+  data_weight: 220.0
+  surface_velocity_weight: 60.0
+  surface_pressure_weight: 8.0
+  wall_temperature_weight: 120.0
+  wall_heat_flux_weight: 20.0
+  pde_weight: 0.02
+  wall_pde_weight: 0.05
   inlet_weight: 50.0
   outlet_weight: 5.0
-  interface_temp_weight: 25.0
-  interface_flux_weight: 0.0
-  ordering_weight: 1.0
+  interface_temp_weight: 40.0
+  interface_flux_weight: 0.5
+  ordering_weight: 2.0
   reg_weight: 0.0
   wall_reg_weight: 0.0
   warmup_epochs: 20

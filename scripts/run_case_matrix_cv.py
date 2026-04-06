@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_CONFIG = ROOT / "configs" / "double_pipe_3d_synthetic_conditioned_matrix.yaml"
+DEFAULT_CONFIG = ROOT / "configs" / "double_pipe_3d_case_matrix_conditioned_matrix.yaml"
 ALL_CASE_IDS = [
     "case_001",
     "case_002",
@@ -37,7 +37,7 @@ FOLD_VALIDATION_CASE_IDS = {
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run 4-fold unseen-case cross-validation for the synthetic 3D PINN.")
+    parser = argparse.ArgumentParser(description="Run 4-fold unseen-case cross-validation for the case matrix 3D PINN.")
     parser.add_argument(
         "--config",
         default=str(DEFAULT_CONFIG),
@@ -52,7 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--output-root",
-        default="outputs_3d_synthetic_conditioned_case_cv",
+        default="outputs_3d_case_matrix_conditioned_case_cv",
         help="Directory where fold outputs and aggregate summaries will be stored.",
     )
     parser.add_argument(
@@ -114,9 +114,9 @@ def _run_fold(
         "--config",
         config_path,
         "--set",
-        f"synthetic_3d.train_case_ids={json.dumps(train_case_ids)}",
+        f"case_matrix_3d.train_case_ids={json.dumps(train_case_ids)}",
         "--set",
-        f"synthetic_3d.validation_case_ids={json.dumps(validation_case_ids)}",
+        f"case_matrix_3d.validation_case_ids={json.dumps(validation_case_ids)}",
         "--set",
         f"paths.output_dir={_relative_output_path(output_dir)}",
     ]

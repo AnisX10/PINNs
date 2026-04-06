@@ -15,7 +15,7 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from pinn_hex.config import apply_overrides, load_config
-from pinn_hex.data.synthetic import OPERATING_COLUMNS, resolve_synthetic_3d_config, synthetic_case_ids_from_config
+from pinn_hex.data.case_matrix import OPERATING_COLUMNS, resolve_case_matrix_3d_config, case_matrix_case_ids_from_config
 from pinn_hex.data.threed import build_3d_case_artifacts
 from pinn_hex.postprocess.temperature_calibration import apply_temperature_calibration, load_temperature_calibration
 from pinn_hex.physics.double_pipe import operating_point_from_config
@@ -23,13 +23,13 @@ from pinn_hex.physics.double_pipe_3d import geometry3d_from_config
 from pinn_hex.training.trainer_3d import PINNTrainer3D
 
 
-DEFAULT_CONFIG = ROOT / "configs" / "double_pipe_3d_synthetic_conditioned_final.yaml"
+DEFAULT_CONFIG = ROOT / "configs" / "double_pipe_3d_case_matrix_conditioned_final.yaml"
 DEFAULT_VALIDATION_CASE_IDS = ["case_003", "case_007", "case_009", "case_016"]
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Train or evaluate the locked final 3D PINN on a reserved synthetic holdout split."
+        description="Train or evaluate the locked final 3D PINN on a reserved case matrix holdout split."
     )
     parser.add_argument(
         "--config",
@@ -40,11 +40,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--validation-case-ids",
         nargs="+",
         default=list(DEFAULT_VALIDATION_CASE_IDS),
-        help="Held-out synthetic case ids used for final validation.",
+        help="Held-out case matrix case ids used for final validation.",
     )
     parser.add_argument(
         "--output-dir",
-        default="outputs_3d_synthetic_final_validation",
+        default="outputs_3d_case_matrix_final_validation",
         help="Directory for training and validation artifacts.",
     )
     parser.add_argument(
@@ -85,9 +85,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _case_split(config: dict, validation_case_ids: list[str]) -> tuple[list[str], list[str]]:
-    selected_case_ids = [str(case_id) for case_id in synthetic_case_ids_from_config(config)]
+    selected_case_ids = [str(case_id) for case_id in case_matrix_case_ids_from_config(config)]
     if not selected_case_ids:
-        raise ValueError("Final validation requires synthetic_3d.case_ids or related synthetic case configuration.")
+        raise ValueError("Final validation requires case_matrix_3d.case_ids or related case matrix case configuration.")
     selected_set = set(selected_case_ids)
     validation = [str(case_id) for case_id in validation_case_ids]
     unknown = sorted(set(validation) - selected_set)
@@ -355,15 +355,15 @@ def main() -> None:
     config = load_config(args.config)
     config = apply_overrides(config, list(args.set))
     train_case_ids, validation_case_ids = _case_split(config, list(args.validation_case_ids))
-    config.setdefault("synthetic_3d", {})
-    config["synthetic_3d"]["train_case_ids"] = list(train_case_ids)
-    config["synthetic_3d"]["validation_case_ids"] = list(validation_case_ids)
+    config.setdefault("case_matrix_3d", {})
+    config["case_matrix_3d"]["train_case_ids"] = list(train_case_ids)
+    config["case_matrix_3d"]["validation_case_ids"] = list(validation_case_ids)
     config.setdefault("paths", {})
     config["paths"]["output_dir"] = str(output_dir)
     if args.freeze_k_wall:
         config.setdefault("model_3d", {})
         config["model_3d"]["learn_wall_conductivity"] = False
-    config = resolve_synthetic_3d_config(config)
+    config = resolve_case_matrix_3d_config(config)
 
     artifacts = build_3d_case_artifacts(config)
     geometry = geometry3d_from_config(config)
@@ -435,7 +435,7 @@ def main() -> None:
         "validation_protocol": {
             "type": "locked_internal_holdout",
             "description": (
-                "Final synthetic holdout validation using the locked conditioned config on reserved cases. "
+                "Final case matrix holdout validation using the locked conditioned config on reserved cases. "
                 "This is an internal holdout, not an external dataset."
             ),
             "config": str(Path(args.config).resolve()),

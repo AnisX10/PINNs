@@ -1,8 +1,8 @@
 {
   "type": "boundary_temperature_bias",
   "description": "Additive fluid-boundary temperature correction fitted on training-case residual means.",
-  "checkpoint_path": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\\checkpoints\\best_model_3d.pt",
-  "config_path": "C:\\Users\\TL\\Desktop\\PINN\\configs\\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml",
+  "checkpoint_path": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_case_matrix_qagg_positivep_optphys2_10ep_dpcal_walltune\\checkpoints\\best_model_3d.pt",
+  "config_path": "C:\\Users\\TL\\Desktop\\PINN\\configs\\double_pipe_3d_case_matrix_conditioned_validation_optphys.yaml",
   "fit_boundaries": [
     "hot_inlet",
     "hot_wall",

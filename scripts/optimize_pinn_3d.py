@@ -14,7 +14,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run a staged optimization campaign for the 3D PINN.")
     parser.add_argument(
         "--config",
-        default=str(ROOT / "configs" / "double_pipe_3d_synthetic_case001.yaml"),
+        default=str(ROOT / "configs" / "double_pipe_3d_case_matrix_case001.yaml"),
         help="Path to the YAML configuration file.",
     )
     parser.add_argument(

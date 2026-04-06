@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 from pinn_hex.data.comsol import read_temperature_csv, summarize_temperature_csv
-from pinn_hex.data.synthetic import build_synthetic_3d_case_artifacts, uses_synthetic_3d_data
+from pinn_hex.data.case_matrix import build_case_matrix_3d_case_artifacts, uses_case_matrix_3d_data
 from pinn_hex.physics.double_pipe_3d import ThreeDGeometry, geometry3d_from_config
 
 
@@ -72,8 +72,8 @@ def _boundary_temperature_stats(frame: pd.DataFrame) -> dict[str, dict[str, floa
 
 
 def build_3d_case_artifacts(config: dict) -> dict:
-    if uses_synthetic_3d_data(config):
-        return build_synthetic_3d_case_artifacts(config)
+    if uses_case_matrix_3d_data(config):
+        return build_case_matrix_3d_case_artifacts(config)
 
     geometry = geometry3d_from_config(config)
     solution_path = Path(config["paths"]["solution_csv"])

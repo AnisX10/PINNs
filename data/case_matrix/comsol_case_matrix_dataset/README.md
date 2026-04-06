@@ -1,6 +1,6 @@
-# Synthetic COMSOL-style PINN dataset
+# Case Matrix COMSOL-style PINN dataset
 
-This package was generated as a **synthetic surrogate dataset** from the uploaded run order and the attached COMSOL report/CSV files.
+This package was generated as a **case matrix surrogate dataset** from the uploaded run order and the attached COMSOL report/CSV files.
 It mirrors the **requested export structure and operating-point order** without running a new COMSOL solve.
 
 ## What is included
@@ -31,5 +31,5 @@ It mirrors the **requested export structure and operating-point order** without 
   - `globals.csv` closes the hot/cold energy balance for each case
 
 ## Important note
-These files are **synthetic** and suitable for pipeline development, PINN scaffolding, sanity checks, and loader testing.
+These files are **case matrix** and suitable for pipeline development, PINN scaffolding, sanity checks, and loader testing.
 They are **not** direct exports from COMSOL and no updated `.mph` file is included.

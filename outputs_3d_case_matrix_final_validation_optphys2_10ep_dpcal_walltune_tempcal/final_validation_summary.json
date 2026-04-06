@@ -1,11 +1,11 @@
 {
   "validation_protocol": {
     "type": "locked_internal_holdout",
-    "description": "Final synthetic holdout validation using the locked conditioned config on reserved cases. This is an internal holdout, not an external dataset.",
-    "config": "C:\\Users\\TL\\Desktop\\PINN\\configs\\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml",
+    "description": "Final case-matrix holdout validation using the locked conditioned config on reserved cases. This is an internal holdout, not an external dataset.",
+    "config": "C:\\Users\\TL\\Desktop\\PINN\\configs\\double_pipe_3d_case_matrix_conditioned_validation_optphys.yaml",
     "training_mode": "provided_checkpoint",
-    "checkpoint_path": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\\checkpoints\\best_model_3d.pt",
-    "output_dir": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_final_validation_optphys2_10ep_dpcal_walltune_tempcal",
+    "checkpoint_path": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_case_matrix_qagg_positivep_optphys2_10ep_dpcal_walltune\\checkpoints\\best_model_3d.pt",
+    "output_dir": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_case_matrix_final_validation_optphys2_10ep_dpcal_walltune_tempcal",
     "train_case_ids": [
       "case_001",
       "case_002",
@@ -28,7 +28,7 @@
     ],
     "freeze_k_wall": true,
     "adam_epochs_override": null,
-    "temperature_calibration_json": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\\boundary_temperature_calibration.json",
+    "temperature_calibration_json": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_case_matrix_qagg_positivep_optphys2_10ep_dpcal_walltune\\boundary_temperature_calibration.json",
     "config_overrides": []
   },
   "surface_validation_metrics": {
@@ -258,8 +258,8 @@
   "temperature_calibration": {
     "type": "boundary_temperature_bias",
     "description": "Additive fluid-boundary temperature correction fitted on training-case residual means.",
-    "checkpoint_path": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\\checkpoints\\best_model_3d.pt",
-    "config_path": "C:\\Users\\TL\\Desktop\\PINN\\configs\\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml",
+    "checkpoint_path": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_case_matrix_qagg_positivep_optphys2_10ep_dpcal_walltune\\checkpoints\\best_model_3d.pt",
+    "config_path": "C:\\Users\\TL\\Desktop\\PINN\\configs\\double_pipe_3d_case_matrix_conditioned_validation_optphys.yaml",
     "fit_boundaries": [
       "hot_inlet",
       "hot_wall",
@@ -300,8 +300,8 @@
     }
   },
   "artifacts": {
-    "heldout_boundary_predictions_csv": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_final_validation_optphys2_10ep_dpcal_walltune_tempcal\\heldout_boundary_predictions.csv",
-    "case_summary_csv": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_final_validation_optphys2_10ep_dpcal_walltune_tempcal\\final_validation_case_summary.csv",
-    "summary_json": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_final_validation_optphys2_10ep_dpcal_walltune_tempcal\\final_validation_summary.json"
+    "heldout_boundary_predictions_csv": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_case_matrix_final_validation_optphys2_10ep_dpcal_walltune_tempcal\\heldout_boundary_predictions.csv",
+    "case_summary_csv": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_case_matrix_final_validation_optphys2_10ep_dpcal_walltune_tempcal\\final_validation_case_summary.csv",
+    "summary_json": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_case_matrix_final_validation_optphys2_10ep_dpcal_walltune_tempcal\\final_validation_summary.json"
   }
 }

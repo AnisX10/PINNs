@@ -1,14 +1,14 @@
 project:
-  name: double_pipe_hex_pinn_3d_synthetic_conditioned_matrix
-  description: 3D multiphysics PINN conditioned on synthetic operating points across the full case matrix.
+  name: double_pipe_hex_pinn_3d_case_matrix_conditioned_matrix
+  description: 3D multiphysics PINN conditioned on case matrix operating points across the full case matrix.
   mode: stationary_3d_multiphysics
 
 paths:
-  synthetic_root_dir: data/synthetic/synthetic_comsol_pinn_dataset
-  processed_dir: data/processed_3d_synthetic_conditioned_matrix
-  output_dir: outputs_3d_synthetic_conditioned_matrix
+  case_matrix_root_dir: data/case_matrix/comsol_case_matrix_dataset
+  processed_dir: data/processed_3d_case_matrix_conditioned_matrix
+  output_dir: outputs_3d_case_matrix_conditioned_matrix
 
-synthetic_3d:
+case_matrix_3d:
   case_ids:
     - case_001
     - case_002

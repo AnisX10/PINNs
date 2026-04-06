@@ -10,7 +10,7 @@ import pandas as pd
 import torch
 from torch.nn.utils import clip_grad_norm_
 
-from pinn_hex.data.synthetic import OPERATING_COLUMNS
+from pinn_hex.data.case_matrix import OPERATING_COLUMNS
 from pinn_hex.models.factory_3d import build_double_pipe_pinn_3d
 from pinn_hex.physics.double_pipe import OperatingPoint
 from pinn_hex.physics.double_pipe_3d import (

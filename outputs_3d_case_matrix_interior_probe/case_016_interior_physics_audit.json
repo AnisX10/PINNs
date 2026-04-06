@@ -1,6 +1,6 @@
 {
-  "config": "C:\\Users\\TL\\Desktop\\PINN\\configs\\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml",
-  "checkpoint_path": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\\checkpoints\\best_model_3d.pt",
+  "config": "C:\\Users\\TL\\Desktop\\PINN\\configs\\double_pipe_3d_case_matrix_conditioned_validation_optphys.yaml",
+  "checkpoint_path": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_case_matrix_qagg_positivep_optphys2_10ep_dpcal_walltune\\checkpoints\\best_model_3d.pt",
   "operating_point": {
     "case_id": "case_016",
     "Th_in_K": 311.0,
