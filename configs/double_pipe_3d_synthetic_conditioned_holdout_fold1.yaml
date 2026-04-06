@@ -1,0 +1,127 @@
+project:
+  name: double_pipe_hex_pinn_3d_synthetic_conditioned_holdout_fold1
+  description: 3D multiphysics PINN conditioned on operating points with unseen-case validation.
+  mode: stationary_3d_multiphysics
+
+paths:
+  synthetic_root_dir: data/synthetic/synthetic_comsol_pinn_dataset
+  processed_dir: data/processed_3d_synthetic_conditioned_holdout_fold1
+  output_dir: outputs_3d_synthetic_conditioned_holdout_fold1
+
+synthetic_3d:
+  train_case_ids:
+    - case_001
+    - case_002
+    - case_003
+    - case_005
+    - case_006
+    - case_007
+    - case_008
+    - case_009
+    - case_011
+    - case_012
+    - case_014
+    - case_015
+  validation_case_ids:
+    - case_004
+    - case_010
+    - case_013
+    - case_016
+  flip_z_axis: true
+
+reference_conditions:
+  initial_temperature_K: 293.15
+  hot_inlet_temperature_K: 303.0
+  cold_inlet_temperature_K: 283.5
+  inlet_velocity_hot_m_per_s: 1.0
+  inlet_velocity_cold_m_per_s: 1.0
+  density_kg_per_m3: 1000.0
+  cp_J_per_kgK: 4180.0
+  turbulence_model: k-omega
+  turbulence_intensity: 0.05
+  flow_regime: turbulent
+
+geometry_3d:
+  hot_half_length_m: 0.205
+  cold_half_length_m: 0.205
+  hot_radius_m: 0.0065
+  cold_inner_radius_m: 0.0085
+  cold_outer_radius_m: 0.020
+  surface_tolerance_m: 0.0001
+
+preprocessing_3d:
+  validation_ratio: 0.15
+
+model_3d:
+  hidden_dim: 128
+  num_hidden_layers: 6
+  activation: tanh
+  fourier_features: 24
+  fourier_sigma: 4.0
+  condition_on_operating_point: true
+  learn_hot_inlet_temperature: false
+  learn_cold_inlet_temperature: false
+  learn_wall_conductivity: false
+  initial_nu_hot_m2_s: 1.0e-6
+  initial_nu_cold_m2_s: 1.0e-6
+  initial_alpha_hot_m2_s: 1.0e-6
+  initial_alpha_cold_m2_s: 1.0e-6
+  initial_k_wall_w_mk: 16.0
+  velocity_correction_scale_m_s: 0.25
+  velocity_condition_scale_m_s: 1.4
+  pressure_scale_pa: 1000.0
+  temperature_reference_K: 293.15
+  temperature_scale_K: 20.0
+
+training_3d:
+  seed: 42
+  adam_epochs: 40
+  adam_lr: 7.0e-4
+  hot_inlet_temperature_source: reference
+  cold_inlet_temperature_source: reference
+  surface_batch_hot: 1024
+  surface_batch_cold: 1024
+  surface_boundary_sampling_weights:
+    hot_inlet: 2.0
+    hot_outlet: 4.0
+    hot_wall: 1.0
+    cold_inlet: 2.0
+    cold_inner_wall: 2.0
+    cold_outlet: 4.0
+  surface_boundary_loss_weights:
+    hot_inlet: 1.5
+    hot_outlet: 3.0
+    hot_wall: 1.0
+    cold_inlet: 1.5
+    cold_inner_wall: 1.5
+    cold_outlet: 3.0
+  collocation_hot: 512
+  collocation_cold: 512
+  collocation_wall: 256
+  inlet_points_hot: 128
+  inlet_points_cold: 128
+  outlet_points_hot: 128
+  outlet_points_cold: 128
+  interface_points: 256
+  data_weight: 200.0
+  pde_weight: 1.0e-5
+  wall_pde_weight: 1.0e-6
+  inlet_weight: 50.0
+  outlet_weight: 5.0
+  interface_temp_weight: 25.0
+  interface_flux_weight: 1.0e-4
+  ordering_weight: 1.0
+  reg_weight: 1.0e-4
+  wall_reg_weight: 1.0e-3
+  warmup_epochs: 20
+  warmup_pde_scale: 0.1
+  warmup_wall_pde_scale: 0.1
+  warmup_interface_flux_scale: 0.2
+  grad_clip: 1.0
+  lbfgs_steps: 8
+  lbfgs_lr: 0.5
+  lbfgs_max_iter: 20
+  lbfgs_history_size: 50
+  lbfgs_collocation_multiplier: 2.0
+  print_every: 10
+  device: auto

@@ -1,0 +1,95 @@
+project:
+  name: double_pipe_hex_pinn
+  description: Reduced-order counter-current PINN digital twin derived from COMSOL exports.
+  mode: stationary
+
+paths:
+  solution_csv: data/raw/Datasol1.csv
+  mesh_csv: data/raw/Datasol2.csv
+  duplicate_csv: data/raw/DataEW.csv
+  reference_docx: docs/reference_report.docx
+  processed_dir: data/processed
+  output_dir: outputs
+
+geometry:
+  axial_axis: z
+  hot_half_length_m: 0.205
+  cold_half_length_m: 0.165
+  hot_radius_m: 0.011
+  annulus_outer_radius_m: 0.020
+  radial_tolerance_m: 0.0005
+
+reference_conditions:
+  initial_temperature_K: 293.15
+  hot_inlet_temperature_K: 303.0
+  cold_inlet_temperature_K: 277.0
+  inlet_velocity_hot_m_per_s: 1.0
+  inlet_velocity_cold_m_per_s: 1.0
+  density_kg_per_m3: 1000.0
+  cp_J_per_kgK: 4180.0
+  turbulence_model: k-omega
+  turbulence_intensity: 0.05
+  flow_regime: turbulent
+
+preprocessing:
+  hot_bins: 80
+  cold_bins: 64
+  profile_statistic: mean
+  validation_ratio: 0.2
+  hot_uniform_points: 128
+  cold_uniform_points: 128
+  interpolation: pchip
+  denoise_mode: auto
+  denoise_method: savgol
+  denoise_window: 11
+  denoise_polyorder: 3
+  denoise_sign_change_threshold: 6
+  keep_boundaries_in_train: true
+  normalization_temperature_reference: inlet_span
+  normalization_coordinate_reference: streamwise
+  hot_piecewise_monotonic_supervision: true
+  cold_monotonic_supervision: false
+
+model:
+  hidden_dim: 128
+  num_hidden_layers: 6
+  activation: tanh
+  fourier_features: 16
+  fourier_sigma: 4.0
+  initial_u_w_m2k: 1500.0
+  initial_alpha_hot_m2_s: 1.0e-6
+  initial_alpha_cold_m2_s: 1.0e-6
+  initial_hot_ambient_coupling_s_inv: 5.0
+  time_scale_s: 1.0
+  cold_inlet_learnable: true
+  cold_inlet_max_offset_fraction: 0.5
+
+training:
+  seed: 42
+  adam_epochs: 2000
+  adam_lr: 5.0e-4
+  lbfgs_max_iter: 200
+  collocation_hot: 1024
+  collocation_cold: 1024
+  data_weight: 200.0
+  bc_weight: 20.0
+  ic_weight: 0.0
+  pde_weight: 1.0
+  reg_weight: 1.0e-4
+  monotonic_weight: 5.0
+  ordering_weight: 2.0
+  smoothness_weight: 0.05
+  cold_inlet_prior_weight: 0.1
+  warmup_epochs: 200
+  warmup_pde_scale: 0.05
+  warmup_bc_scale: 0.5
+  warmup_monotonic_scale: 0.5
+  grad_clip: 1.0
+  print_every: 100
+  device: auto
+  checkpoint_metric: validation_rmse
+
+experiments:
+  smoke_test_epochs: 25
+  noise_levels: [0.0, 0.005, 0.01, 0.02]
+  missing_data_fractions: [0.0, 0.1, 0.3, 0.5]

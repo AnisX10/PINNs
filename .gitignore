@@ -1,0 +1,9 @@
+.venv/
+.venv_ssp/
+__pycache__/
+*.pyc
+outputs/checkpoints/
+outputs/figures/
+outputs/*.json
+outputs/*.csv
+reports/gui_runs/
