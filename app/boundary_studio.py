@@ -25,6 +25,18 @@ DEFAULT_CHECKPOINT = (
 DEFAULT_CALIBRATION = (
     "outputs_3d_case_matrix_qagg_positivep_optphys2_10ep_dpcal_walltune/boundary_temperature_calibration.json"
 )
+CV_SUMMARY_PATH = ROOT / "outputs_3d_case_matrix_conditioned_case_cv_final" / "case_cv_summary.json"
+CV_CASE_SUMMARY_PATH = ROOT / "outputs_3d_case_matrix_conditioned_case_cv_final" / "case_cv_case_summary.csv"
+HOLDOUT_SUMMARY_PATH = (
+    ROOT
+    / "outputs_3d_case_matrix_final_validation_optphys2_10ep_dpcal_walltune_tempcal"
+    / "final_validation_summary.json"
+)
+HOLDOUT_CASE_SUMMARY_PATH = (
+    ROOT
+    / "outputs_3d_case_matrix_final_validation_optphys2_10ep_dpcal_walltune_tempcal"
+    / "final_validation_case_summary.csv"
+)
 
 
 def _inject_css() -> None:
@@ -360,6 +372,30 @@ def _load_json(path: str | Path) -> dict[str, Any]:
 @st.cache_data(show_spinner=False)
 def _load_csv(path: str | Path) -> pd.DataFrame:
     return pd.read_csv(path)
+
+
+def _safe_load_json(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    return _load_json(path)
+
+
+def _safe_load_csv(path: Path) -> pd.DataFrame | None:
+    if not path.exists():
+        return None
+    return _load_csv(path)
+
+
+def _r2_score(y_true: pd.Series | np.ndarray, y_pred: pd.Series | np.ndarray) -> float:
+    true_values = np.asarray(y_true, dtype=float)
+    pred_values = np.asarray(y_pred, dtype=float)
+    if true_values.size < 2:
+        return float("nan")
+    ss_res = float(np.sum((true_values - pred_values) ** 2))
+    ss_tot = float(np.sum((true_values - np.mean(true_values)) ** 2))
+    if ss_tot <= 1e-12:
+        return float("nan")
+    return 1.0 - (ss_res / ss_tot)
 
 
 def _render_section_intro(kicker: str, title: str, copy: str) -> None:
@@ -789,6 +825,354 @@ def _temperature_band_figure(audit: dict[str, Any]) -> go.Figure:
         yaxis_title="Temperature [K]",
     )
     return figure
+
+
+def _cv_case_rmse_figure(case_summary: pd.DataFrame) -> go.Figure:
+    plot_frame = case_summary.copy().sort_values("combined_rmse_K", ascending=True)
+    plot_frame["case_label"] = plot_frame["case_id"].str.replace("case_", "Preset ", regex=False)
+    figure = px.bar(
+        plot_frame,
+        x="combined_rmse_K",
+        y="case_label",
+        color="combined_rmse_K",
+        orientation="h",
+        color_continuous_scale="Tealgrn_r",
+        labels={"combined_rmse_K": "Combined RMSE [K]", "case_label": ""},
+    )
+    figure.update_layout(
+        title="Cross-validation RMSE by preset",
+        margin=dict(l=18, r=18, t=50, b=18),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        coloraxis_showscale=False,
+    )
+    return figure
+
+
+def _fold_score_figure(cv_summary: dict[str, Any]) -> go.Figure:
+    frame = pd.DataFrame(cv_summary["fold_results"]).copy()
+    frame["fold_label"] = frame["fold"].map(lambda value: f"Fold {value}")
+    figure = px.bar(
+        frame,
+        x="fold_label",
+        y="best_validation_score",
+        color="best_validation_score",
+        text="validation_case_ids",
+        color_continuous_scale="Blues_r",
+        labels={"best_validation_score": "Best fold RMSE [K]", "fold_label": ""},
+    )
+    figure.update_traces(textposition="outside")
+    figure.update_layout(
+        title="Validation score by fold",
+        margin=dict(l=18, r=18, t=50, b=18),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        coloraxis_showscale=False,
+        xaxis_title="",
+    )
+    return figure
+
+
+def _holdout_error_profile_figure(case_summary: pd.DataFrame) -> go.Figure:
+    plot_frame = case_summary.copy()
+    plot_frame["case_label"] = plot_frame["case_id"].str.replace("case_", "Preset ", regex=False)
+    melted = plot_frame.melt(
+        id_vars=["case_label"],
+        value_vars=[
+            "combined_rmse_K",
+            "Q_total_rel_error_pct",
+            "energy_balance_gap_pct",
+        ],
+        var_name="metric",
+        value_name="value",
+    )
+    label_map = {
+        "combined_rmse_K": "Boundary RMSE [K]",
+        "Q_total_rel_error_pct": "Heat duty error [%]",
+        "energy_balance_gap_pct": "Heat balance gap [%]",
+    }
+    melted["metric"] = melted["metric"].map(label_map)
+    figure = px.bar(
+        melted,
+        x="case_label",
+        y="value",
+        color="metric",
+        barmode="group",
+        color_discrete_sequence=["#133d5a", "#c76b34", "#7b8898"],
+        labels={"case_label": "", "value": "Value"},
+    )
+    figure.update_layout(
+        title="Holdout validation profile by preset",
+        margin=dict(l=18, r=18, t=50, b=18),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        legend_title_text="",
+    )
+    return figure
+
+
+def _parity_figure(
+    case_summary: pd.DataFrame,
+    reference_column: str,
+    prediction_column: str,
+    title: str,
+    axis_label: str,
+    color_column: str = "combined_rmse_K",
+) -> go.Figure:
+    plot_frame = case_summary.copy()
+    plot_frame["case_label"] = plot_frame["case_id"].str.replace("case_", "Preset ", regex=False)
+    min_value = float(
+        min(plot_frame[reference_column].min(), plot_frame[prediction_column].min())
+    )
+    max_value = float(
+        max(plot_frame[reference_column].max(), plot_frame[prediction_column].max())
+    )
+    figure = px.scatter(
+        plot_frame,
+        x=reference_column,
+        y=prediction_column,
+        color=color_column,
+        text="case_label",
+        color_continuous_scale="Tealgrn_r",
+        labels={
+            reference_column: f"Reference {axis_label}",
+            prediction_column: f"Model {axis_label}",
+            color_column: "RMSE [K]",
+        },
+    )
+    figure.update_traces(textposition="top center", marker=dict(size=12, line=dict(width=1, color="white")))
+    figure.add_trace(
+        go.Scatter(
+            x=[min_value, max_value],
+            y=[min_value, max_value],
+            mode="lines",
+            line=dict(color="#102536", dash="dash"),
+            name="Ideal match",
+        )
+    )
+    figure.update_layout(
+        title=title,
+        margin=dict(l=18, r=18, t=50, b=18),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        legend_title_text="",
+    )
+    return figure
+
+
+def _render_benchmark_snapshot() -> None:
+    holdout_summary = _safe_load_json(HOLDOUT_SUMMARY_PATH)
+    holdout_case_summary = _safe_load_csv(HOLDOUT_CASE_SUMMARY_PATH)
+    cv_summary = _safe_load_json(CV_SUMMARY_PATH)
+    cv_case_summary = _safe_load_csv(CV_CASE_SUMMARY_PATH)
+
+    if not holdout_summary or holdout_case_summary is None or not cv_summary or cv_case_summary is None:
+        st.markdown(
+            """
+            <div class="note-card">
+              <div class="soft-note">
+                Benchmark files are not available right now. The workshop can still start new runs, but the summary scorecards need the saved validation outputs.
+              </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        return
+
+    holdout_surface = holdout_summary["surface_validation_metrics"]
+    holdout_physics = holdout_summary["physics_checks"]
+    heat_duty_r2 = _r2_score(
+        holdout_case_summary["reference_Q_total_W"],
+        holdout_case_summary["predicted_Q_mean_W"],
+    )
+    outlet_r2 = _r2_score(
+        np.concatenate(
+            [
+                holdout_case_summary["reference_hot_outlet_bulk_K"].to_numpy(),
+                holdout_case_summary["reference_cold_outlet_bulk_K"].to_numpy(),
+            ]
+        ),
+        np.concatenate(
+            [
+                holdout_case_summary["predicted_hot_outlet_bulk_K"].to_numpy(),
+                holdout_case_summary["predicted_cold_outlet_bulk_K"].to_numpy(),
+            ]
+        ),
+    )
+    pressure_r2 = _r2_score(
+        np.concatenate(
+            [
+                holdout_case_summary["reference_hot_dp_Pa"].to_numpy(),
+                holdout_case_summary["reference_cold_dp_Pa"].to_numpy(),
+            ]
+        ),
+        np.concatenate(
+            [
+                holdout_case_summary["predicted_hot_dp_Pa"].to_numpy(),
+                holdout_case_summary["predicted_cold_dp_Pa"].to_numpy(),
+            ]
+        ),
+    )
+
+    _render_section_intro(
+        "Validation snapshot",
+        "Read the model quality before you launch a new run",
+        "These cards and charts come from the locked validation bundle, so the workshop shows the current model standard before you start another build.",
+    )
+    kpi_row_one = st.columns(4)
+    with kpi_row_one[0]:
+        _render_metric_tile(
+            "Holdout RMSE",
+            f"{holdout_surface['combined_rmse_K']:.3f} K",
+            "Combined boundary error on reserved validation presets.",
+        )
+    with kpi_row_one[1]:
+        _render_metric_tile(
+            "Cross-validation RMSE",
+            f"{cv_summary['aggregate']['mean_combined_rmse_K']:.3f} K",
+            "Average across all validation folds.",
+        )
+    with kpi_row_one[2]:
+        _render_metric_tile(
+            "Heat duty R²",
+            f"{heat_duty_r2:.3f}",
+            "How closely total heat transfer follows the reference trend.",
+        )
+    with kpi_row_one[3]:
+        _render_metric_tile(
+            "Outlet temperature R²",
+            f"{outlet_r2:.3f}",
+            "Agreement on hot and cold outlet bulk temperatures.",
+        )
+
+    kpi_row_two = st.columns(4)
+    with kpi_row_two[0]:
+        _render_metric_tile(
+            "Pressure-drop R²",
+            f"{pressure_r2:.3f}",
+            "Agreement on hot and cold pressure-drop levels.",
+        )
+    with kpi_row_two[1]:
+        _render_metric_tile(
+            "Heat balance gap",
+            f"{holdout_physics['mean_energy_balance_gap_pct']:.2f}%",
+            "Average mismatch between hot-side and cold-side heat duty.",
+        )
+    with kpi_row_two[2]:
+        _render_metric_tile(
+            "Best preset",
+            holdout_physics["best_case_id"].replace("case_", "Preset "),
+            f"Combined RMSE {holdout_physics['best_case_combined_rmse_K']:.3f} K",
+        )
+    with kpi_row_two[3]:
+        _render_metric_tile(
+            "Watch preset",
+            holdout_physics["worst_case_id"].replace("case_", "Preset "),
+            f"Combined RMSE {holdout_physics['worst_case_combined_rmse_K']:.3f} K",
+        )
+
+    benchmark_tabs = st.tabs(
+        ["Readability charts", "Parity charts", "Fold overview", "Saved visuals"]
+    )
+    with benchmark_tabs[0]:
+        left, right = st.columns(2)
+        with left:
+            st.plotly_chart(_cv_case_rmse_figure(cv_case_summary), use_container_width=True)
+        with right:
+            st.plotly_chart(_holdout_error_profile_figure(holdout_case_summary), use_container_width=True)
+    with benchmark_tabs[1]:
+        parity_left, parity_right = st.columns(2)
+        with parity_left:
+            st.plotly_chart(
+                _parity_figure(
+                    holdout_case_summary,
+                    "reference_hot_outlet_bulk_K",
+                    "predicted_hot_outlet_bulk_K",
+                    "Hot outlet parity",
+                    "hot outlet [K]",
+                ),
+                use_container_width=True,
+            )
+            st.plotly_chart(
+                _parity_figure(
+                    holdout_case_summary,
+                    "reference_Q_total_W",
+                    "predicted_Q_mean_W",
+                    "Heat duty parity",
+                    "heat duty [W]",
+                ),
+                use_container_width=True,
+            )
+        with parity_right:
+            st.plotly_chart(
+                _parity_figure(
+                    holdout_case_summary,
+                    "reference_cold_outlet_bulk_K",
+                    "predicted_cold_outlet_bulk_K",
+                    "Cold outlet parity",
+                    "cold outlet [K]",
+                ),
+                use_container_width=True,
+            )
+            st.plotly_chart(
+                _parity_figure(
+                    holdout_case_summary,
+                    "reference_hot_dp_Pa",
+                    "predicted_hot_dp_Pa",
+                    "Hot pressure-drop parity",
+                    "pressure drop [Pa]",
+                ),
+                use_container_width=True,
+            )
+    with benchmark_tabs[2]:
+        fold_left, fold_right = st.columns(2)
+        with fold_left:
+            st.plotly_chart(_fold_score_figure(cv_summary), use_container_width=True)
+        with fold_right:
+            summary_frame = pd.DataFrame(
+                [
+                    {
+                        "metric": "Hot RMSE",
+                        "value": float(cv_summary["aggregate"]["mean_hot_rmse_K"]),
+                    },
+                    {
+                        "metric": "Cold RMSE",
+                        "value": float(cv_summary["aggregate"]["mean_cold_rmse_K"]),
+                    },
+                    {
+                        "metric": "Combined RMSE",
+                        "value": float(cv_summary["aggregate"]["mean_combined_rmse_K"]),
+                    },
+                    {
+                        "metric": "Median RMSE",
+                        "value": float(cv_summary["aggregate"]["median_combined_rmse_K"]),
+                    },
+                ]
+            )
+            figure = px.bar(
+                summary_frame,
+                x="metric",
+                y="value",
+                color="metric",
+                color_discrete_sequence=["#133d5a", "#25749b", "#c76b34", "#7b8898"],
+                labels={"metric": "", "value": "RMSE [K]"},
+                title="Cross-validation summary",
+            )
+            figure.update_layout(
+                margin=dict(l=18, r=18, t=50, b=18),
+                paper_bgcolor="rgba(0,0,0,0)",
+                plot_bgcolor="rgba(0,0,0,0)",
+                showlegend=False,
+            )
+            st.plotly_chart(figure, use_container_width=True)
+    with benchmark_tabs[3]:
+        visual_left, visual_right = st.columns(2)
+        with visual_left:
+            _show_report_image(ROOT / "reports" / "figures" / "case_cv_rmse.png")
+            _show_report_image(ROOT / "reports" / "figures" / "release_scorecard.png")
+        with visual_right:
+            _show_report_image(ROOT / "reports" / "figures" / "holdout_breakdown.png")
+            _show_report_image(ROOT / "reports" / "figures" / "case_016_focus.png")
 
 
 def _quality_band(value: float, good: float, watch: float) -> tuple[str, str]:
@@ -1243,6 +1627,9 @@ def _render_model_workshop(case_manifest: pd.DataFrame) -> None:
         "Start a new run without touching code",
         "Choose the amount of work you want the studio to do, pick a preset, and the workspace will prepare the right run for you.",
     )
+    st.write("")
+    _render_benchmark_snapshot()
+    st.write("")
 
     mode_left, mode_mid, mode_right = st.columns(3)
     with mode_left:
@@ -1344,6 +1731,7 @@ def _render_model_workshop(case_manifest: pd.DataFrame) -> None:
     if latest_dir:
         training_dir = Path(latest_dir)
         history_path = training_dir / "training_history_3d.csv"
+        metrics_path = training_dir / "training_metrics_3d.json"
         checkpoint_path = training_dir / "checkpoints" / "best_model_3d.pt"
         st.write("")
         _render_section_intro(
@@ -1351,6 +1739,22 @@ def _render_model_workshop(case_manifest: pd.DataFrame) -> None:
             "Your most recent build output",
             "If the run produced a training history or a fresh model file, they appear below.",
         )
+        if metrics_path.exists():
+            metrics = _load_json(metrics_path)
+            validation_metrics = metrics.get("validation_metrics", {})
+            hot_rmse = float(validation_metrics.get("hot", {}).get("rmse_K", np.nan))
+            cold_rmse = float(validation_metrics.get("cold", {}).get("rmse_K", np.nan))
+            best_score = float(metrics.get("best_validation_score", np.nan))
+            train_case_count = int(metrics.get("training_case_count", 0))
+            metric_cols = st.columns(4)
+            with metric_cols[0]:
+                _render_metric_tile("Best score", f"{best_score:.3f} K", "Best validation score reported by the run.")
+            with metric_cols[1]:
+                _render_metric_tile("Hot RMSE", f"{hot_rmse:.3f} K", "Validation hot-side boundary error.")
+            with metric_cols[2]:
+                _render_metric_tile("Cold RMSE", f"{cold_rmse:.3f} K", "Validation cold-side boundary error.")
+            with metric_cols[3]:
+                _render_metric_tile("Cases used", f"{train_case_count}", "Number of presets included in the run.")
         if history_path.exists():
             history = _load_csv(history_path)
             value_columns = [
