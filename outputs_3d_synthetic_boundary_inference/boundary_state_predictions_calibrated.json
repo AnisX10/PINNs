@@ -1,0 +1,71 @@
+{
+  "config": "C:\\Users\\TL\\Desktop\\PINN\\configs\\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml",
+  "checkpoint_paths": [
+    "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\\checkpoints\\best_model_3d.pt"
+  ],
+  "ensemble_size": 1,
+  "operating_point": {
+    "Th_in_K": 303.0,
+    "Tc_in_K": 283.5,
+    "uh_in_mps": 1.0,
+    "uc_in_mps": 1.0
+  },
+  "grid": {
+    "n_theta": 96,
+    "n_axial": 96,
+    "n_radial_hot": 24,
+    "n_radial_cold": 24
+  },
+  "geometry": {
+    "hot_half_length_m": 0.205,
+    "cold_half_length_m": 0.205,
+    "hot_radius_m": 0.006499999999999936,
+    "cold_inner_radius_m": 0.008499999999999938,
+    "cold_outer_radius_m": 0.01999741758073977
+  },
+  "temperature_calibration": {
+    "type": "boundary_temperature_bias",
+    "description": "Additive fluid-boundary temperature correction fitted on training-case residual means.",
+    "checkpoint_path": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\\checkpoints\\best_model_3d.pt",
+    "config_path": "C:\\Users\\TL\\Desktop\\PINN\\configs\\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml",
+    "fit_boundaries": [
+      "hot_inlet",
+      "hot_wall",
+      "cold_inlet",
+      "cold_inner_wall"
+    ],
+    "train_case_ids": [
+      "case_001",
+      "case_002",
+      "case_004",
+      "case_005",
+      "case_006",
+      "case_008",
+      "case_010",
+      "case_011",
+      "case_012",
+      "case_013",
+      "case_014",
+      "case_015"
+    ],
+    "validation_case_ids": [
+      "case_003",
+      "case_007",
+      "case_009",
+      "case_016"
+    ],
+    "corrections_K": {
+      "hot_inlet": 0.2518129628552494,
+      "hot_wall": -0.03651215109317917,
+      "cold_inlet": -0.33820789247762345,
+      "cold_inner_wall": 0.5021425732045329
+    },
+    "preview_metrics": {
+      "train_combined_rmse_before_K": 0.8383888700595883,
+      "train_combined_rmse_after_K": 0.6236521256126921,
+      "validation_combined_rmse_before_K": 0.9804776605933243,
+      "validation_combined_rmse_after_K": 0.7802308412626286
+    }
+  },
+  "output_csv": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_boundary_inference\\boundary_state_predictions_calibrated.csv"
+}
