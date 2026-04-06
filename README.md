@@ -1,250 +1,201 @@
-# PINN for a Double-Pipe Heat Exchanger
+# Boundary Flow Studio
 
-This workspace contains a research-grade scaffold for a Physics-Informed Neural Network grounded in the provided COMSOL report export and CSV temperature fields.
+Boundary Flow Studio is a user-facing workspace for exploring a double-pipe heat exchanger with a physics-informed neural network.
 
-## Environment
+The goal is simple: give someone a clean way to test operating conditions, preview boundary behavior, run guided training, and inspect results without needing to understand the internal project history.
 
-The active local environment created for this folder is `.venv_ssp`, which inherits the scientific stack already installed on this machine.
+## What You Can Do
 
-PowerShell activation:
+- Open a polished local studio for scenario testing and guided workflows.
+- Preview boundary temperature and flow behavior for saved or custom operating points.
+- Retrain or refresh the model from guided scripts.
+- Export boundary predictions for downstream use.
+- Generate interior field previews and physics-audit reports for engineering review.
+- Use the bundled synthetic dataset and final release artifacts directly from the repo.
+
+## Who This Is For
+
+This repository is built for:
+
+- engineers who want a faster way to explore exchanger behavior
+- teams preparing for a future COMSOL or OpenFOAM validation phase
+- anyone who needs a packaged PINN workflow instead of a raw research notebook stack
+
+## Quick Start
+
+If you want the fastest path, install the dependencies and launch the studio.
+
+Create and activate an environment:
 
 ```powershell
-.venv_ssp\Scripts\Activate.ps1
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
 ```
 
-If you want a fully isolated environment later, create a fresh venv and install `requirements.txt`.
+If you already use the local project environment, that works too:
 
-## Project Layout
+```powershell
+.\.venv_ssp\Scripts\Activate.ps1
+```
+
+Launch the studio:
+
+```powershell
+python app\final_boundary_gui.py
+```
+
+You can also start Streamlit directly:
+
+```powershell
+streamlit run app\boundary_studio.py
+```
+
+## Main Workflows
+
+### 1. Open the Studio
+
+The local app is the main entry point:
+
+- `Home` gives a clean landing page
+- `Scenario Library` helps browse operating presets
+- `Live Preview` generates fresh boundary previews
+- `Build` runs guided training flows
+- `Flow View` opens interior preview and audit tools
+
+Main launcher:
+
+```powershell
+python app\final_boundary_gui.py
+```
+
+### 2. Run a Boundary Prediction
+
+Use the prediction script when you want a direct export instead of the studio:
+
+```powershell
+python scripts\predict_boundary_3d.py --Th-in 303.0 --Tc-in 283.5 --uh-in 1.0 --uc-in 1.0 --output outputs_3d_synthetic_boundary_inference\custom_boundary_prediction.csv
+```
+
+This writes a prediction bundle you can inspect or pass to another workflow.
+
+### 3. Train or Refresh the Model
+
+For a direct training run:
+
+```powershell
+python scripts\train_pinn_3d.py --config configs\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml
+```
+
+For the case-based sweep:
+
+```powershell
+python scripts\run_synthetic_case_cv.py --config configs\double_pipe_3d_synthetic_conditioned_final.yaml --output-root outputs_3d_synthetic_conditioned_case_cv_final --no-reuse-existing
+```
+
+### 4. Export an Interior Preview
+
+When you want a dense interior field preview:
+
+```powershell
+python scripts\export_interior_fields_3d.py --case-id case_016 --output outputs_3d_synthetic_interior_probe\case_016_interior_fields.csv
+```
+
+When you want a physics-consistency check:
+
+```powershell
+python scripts\audit_interior_physics_3d.py --case-id case_016 --output-json outputs_3d_synthetic_interior_probe\case_016_interior_physics_audit.json
+```
+
+## Included in This Repository
+
+This branch is packaged as a clean release snapshot. It includes:
+
+- the local studio app
+- the full source code
+- training and export scripts
+- the synthetic dataset
+- final model artifacts
+- public reports and figures
+
+You do not need to reconstruct the project from old experiment folders.
+
+## Project Structure
 
 ```text
-configs/                     experiment configuration
-data/raw/                    copied source files
-data/processed/              reduced-order profiles and summaries
-docs/                        reference material and research blueprint
-app/                         local Streamlit studio for testing and training
-reports/                     generated release dashboard, notes, and figures
-scripts/                     runnable entry points
-src/pinn_hex/                package code
-outputs_3d_synthetic_*/      locked final model artifacts and validation bundles
+app/                         local user-facing studio
+configs/                     reusable configuration files
+data/synthetic/              bundled synthetic dataset
+docs/                        small supporting reference files
+reports/                     human-readable figures and summary pages
+scripts/                     runnable training, export, and validation tools
+src/pinn_hex/                package source code
+outputs_3d_synthetic_*/      released model bundles and generated examples
 ```
 
-## Main Commands
+## Model Summary
 
-Download the shared synthetic dataset baseline (`case_001`) into the repo:
+At the core of the project is a conditioned 3D Physics-Informed Neural Network for a counter-current double-pipe heat exchanger.
+
+In practical terms, the model is used here as:
+
+- a boundary prediction engine
+- a scenario exploration tool
+- a training and export workflow
+- a bridge toward future solver-backed validation
+
+## Reports and Figures
+
+The `reports/` folder contains the public-facing output layer:
+
+- `reports/index.html` for a lightweight summary page
+- `reports/final_boundary_model_summary.md` for the release note version
+- `reports/release_manifest.json` for the artifact map
+- `reports/figures/` for operating maps, heatmaps, and overview figures
+
+You can regenerate those assets with:
 
 ```powershell
-.venv_ssp\Scripts\python.exe scripts\download_synthetic_dataset.py
+python scripts\generate_release_assets.py
 ```
 
-Prepare the synthetic 3D boundary case:
+## Dataset
+
+The bundled dataset lives under:
+
+```text
+data/synthetic/synthetic_comsol_pinn_dataset/
+```
+
+It includes:
+
+- operating-point metadata
+- hot and cold inlet and outlet boundary files
+- wall interface files
+- volume files for the synthetic cases included in this release
+
+If you want to refresh or extend the dataset later, the downloader is still included:
 
 ```powershell
-.venv_ssp\Scripts\python.exe scripts\prepare_case_3d.py
+python scripts\download_synthetic_dataset.py
 ```
 
-Run a short 3D PINN smoke training on the synthetic baseline:
+## Current Scope
 
-```powershell
-.venv_ssp\Scripts\python.exe scripts\train_pinn_3d.py --adam-epochs 25 --set training_3d.lbfgs_steps=0
-```
+This project is packaged to be useful now, while still leaving room for a future external validation stage.
 
-Run the final 4-fold conditioned synthetic case CV benchmark:
+Today it is best used as:
 
-```powershell
-.venv_ssp\Scripts\python.exe scripts\run_synthetic_case_cv.py --config configs\double_pipe_3d_synthetic_conditioned_final.yaml --output-root outputs_3d_synthetic_conditioned_case_cv_final --no-reuse-existing
-```
+- a polished PINN studio
+- a synthetic-data workflow for training and testing
+- a boundary prediction tool
+- a preparation layer for later COMSOL or OpenFOAM comparison
 
-Predict full boundary states for a new operating point with the 4-fold ensemble:
+## Next Step
 
-```powershell
-.venv_ssp\Scripts\python.exe scripts\predict_boundary_3d.py --Th-in 303.0 --Tc-in 283.5 --uh-in 1.0 --uc-in 1.0 --output outputs_3d_synthetic_boundary_inference\case_001_boundary_state_predictions.csv
-```
+When you are ready to continue the project with new solver data, this repo is already organized for it:
 
-Run the locked final holdout validation on reserved cases:
-
-```powershell
-.venv_ssp\Scripts\python.exe scripts\validate_final_pinn_3d.py --checkpoint outputs_3d_synthetic_conditioned_case_cv_final\fold_3\checkpoints\best_model_3d.pt --output-dir outputs_3d_synthetic_final_validation
-```
-
-Run the validation-optimization recipe on the reserved holdout split:
-
-```powershell
-.venv_ssp\Scripts\python.exe scripts\train_pinn_3d.py --config configs\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml --resume-checkpoint outputs_3d_synthetic_qagg_positivep_hotout\checkpoints\best_model_3d.pt
-```
-
-Calibrate pressure gains on training cases and then fine-tune only the wall branch:
-
-```powershell
-.venv_ssp\Scripts\python.exe scripts\calibrate_pressure_heads_3d.py --config configs\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml --checkpoint outputs_3d_synthetic_qagg_positivep_optphys2_10ep\checkpoints\best_model_3d.pt --output-dir outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal
-.venv_ssp\Scripts\python.exe scripts\tune_wall_branch_3d.py --config configs\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml --checkpoint outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal\checkpoints\best_model_3d.pt --output-dir outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune
-```
-
-Fit the final boundary-temperature calibration and validate the calibrated model:
-
-```powershell
-.venv_ssp\Scripts\python.exe scripts\fit_boundary_temperature_calibration_3d.py --config configs\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml --checkpoint outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\checkpoints\best_model_3d.pt --output-json outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\boundary_temperature_calibration.json
-.venv_ssp\Scripts\python.exe scripts\validate_final_pinn_3d.py --config configs\double_pipe_3d_synthetic_conditioned_validation_optphys.yaml --checkpoint outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\checkpoints\best_model_3d.pt --temperature-calibration-json outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\boundary_temperature_calibration.json --output-dir outputs_3d_synthetic_final_validation_optphys2_10ep_dpcal_walltune_tempcal
-```
-
-Generate the final human-readable report bundle:
-
-```powershell
-.venv_ssp\Scripts\python.exe scripts\generate_release_assets.py
-```
-
-Launch the user-facing local studio:
-
-```powershell
-.venv_ssp\Scripts\python.exe app\final_boundary_gui.py
-```
-
-Direct Streamlit entry also works:
-
-```powershell
-.venv_ssp\Scripts\streamlit.exe run app\boundary_studio.py
-```
-
-Profile the original COMSOL case and generate reduced hot/cold axial data:
-
-```powershell
-.venv_ssp\Scripts\python.exe scripts\profile_case.py --config configs\double_pipe_countercurrent.yaml
-```
-
-Run a short PINN training smoke test:
-
-```powershell
-.venv_ssp\Scripts\python.exe scripts\train_pinn.py --config configs\double_pipe_countercurrent.yaml --adam-epochs 25 --skip-lbfgs
-```
-
-Run a longer inverse PINN fit:
-
-```powershell
-.venv_ssp\Scripts\python.exe scripts\train_pinn.py --config configs\double_pipe_countercurrent.yaml
-```
-
-## Reference Interpretation
-
-The supplied engineering reference was a Word export (`docs/reference_report.docx`), not a PDF. The project treats that COMSOL report as the authoritative problem definition and uses the CSVs as the practical simulation dataset.
-
-The implemented reduced model assumes:
-
-- Inner hot tube and outer cold annulus.
-- Counter-current flow.
-- Stationary CFD source data with turbulent nonisothermal flow.
-- Effective heat-transfer coupling over the shared overlap region only.
-
-The detailed project rationale is in [docs/PROJECT_BLUEPRINT.md](docs/PROJECT_BLUEPRINT.md).
-
-## Synthetic Dataset Notes
-
-The shared Google Drive synthetic dataset is now the default 3D workflow input. The current shared folders contain boundary CSVs plus `globals.csv` for each case; the volume CSVs referenced in the Drive README were not present in the folder at the time this repo was updated.
-
-The synthetic 3D config is [configs/double_pipe_3d_synthetic_case001.yaml](configs/double_pipe_3d_synthetic_case001.yaml). After downloading more cases, switch cases with an override such as:
-
-```powershell
-.venv_ssp\Scripts\python.exe scripts\train_pinn_3d.py --set synthetic_3d.case_id=case_010
-```
-
-## Final Synthetic Baseline
-
-The locked final conditioned config is [configs/double_pipe_3d_synthetic_conditioned_final.yaml](configs/double_pipe_3d_synthetic_conditioned_final.yaml).
-
-The final unseen-case 4-fold CV summary is [outputs_3d_synthetic_conditioned_case_cv_final/case_cv_summary.json](outputs_3d_synthetic_conditioned_case_cv_final/case_cv_summary.json) with:
-
-- Mean unseen-case combined RMSE: `0.7238 K`
-- Mean hot RMSE: `0.3572 K`
-- Mean cold RMSE: `0.3666 K`
-- Best case: `case_005` at `0.6381 K`
-- Worst case: `case_016` at `1.5067 K`
-
-This model is strong as a synthetic boundary-temperature surrogate. It is not yet validated as a full volumetric field surrogate because the shared dataset still lacks the promised volume CSVs.
-
-## Boundary Inference
-
-Use [scripts/predict_boundary_3d.py](scripts/predict_boundary_3d.py) to export boundary predictions for arbitrary inlet temperatures and velocities. By default it loads the 4 final CV fold checkpoints from [outputs_3d_synthetic_conditioned_case_cv_final](outputs_3d_synthetic_conditioned_case_cv_final) and writes:
-
-- a CSV with `u`, `v`, `w`, `p`, and `T` ensemble means and standard deviations on the hot and cold fluid boundaries
-- a CSV section for wall-interface temperature mean and standard deviation
-- a JSON metadata file with the operating point, grid, geometry, and checkpoint list
-
-The default output root is `outputs_3d_synthetic_boundary_inference/`.
-
-For the final validation-optimized single-checkpoint path, pass:
-
-- `--checkpoint outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\checkpoints\best_model_3d.pt`
-- `--temperature-calibration-json outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\boundary_temperature_calibration.json`
-
-## Final Holdout Validation
-
-Use [scripts/validate_final_pinn_3d.py](scripts/validate_final_pinn_3d.py) to evaluate the locked final conditioned model on a reserved holdout split and emit:
-
-- held-out boundary predictions
-- per-case validation summaries
-- one aggregate validation JSON with surface RMSE and physics checks
-
-The default conservative holdout is `case_003`, `case_007`, `case_009`, and `case_016`. This is an internal holdout validation, not an external dataset validation.
-
-## Validation-Optimized Candidate
-
-The strongest validation-focused candidate is built from:
-
-- [configs/double_pipe_3d_synthetic_conditioned_validation_optphys.yaml](configs/double_pipe_3d_synthetic_conditioned_validation_optphys.yaml)
-- [scripts/calibrate_pressure_heads_3d.py](scripts/calibrate_pressure_heads_3d.py)
-- [scripts/tune_wall_branch_3d.py](scripts/tune_wall_branch_3d.py)
-- [scripts/fit_boundary_temperature_calibration_3d.py](scripts/fit_boundary_temperature_calibration_3d.py)
-
-Final reserved-holdout summary:
-
-- checkpoint: [outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune/checkpoints/best_model_3d.pt](outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune/checkpoints/best_model_3d.pt)
-- temperature calibration: [outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune/boundary_temperature_calibration.json](outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune/boundary_temperature_calibration.json)
-- report: [outputs_3d_synthetic_final_validation_optphys2_10ep_dpcal_walltune_tempcal/final_validation_summary.json](outputs_3d_synthetic_final_validation_optphys2_10ep_dpcal_walltune_tempcal/final_validation_summary.json)
-- combined boundary RMSE: `0.7802 K`
-- mean `Q_total` relative error: `8.17%`
-- mean energy-balance gap: `11.68%`
-- mean hot / cold pressure-drop relative error: `14.55% / 14.81%`
-- mean hot / cold interface temperature RMSE: `2.60 K / 3.22 K`
-
-This is the current best boundary-validated PINN candidate in the repo and it meets the `< 0.8 K` strict holdout RMSE target on the reserved internal split. It is still not a fully validated volumetric field model because the synthetic dataset does not include interior volume fields.
-
-## Release Layer
-
-The repo now includes a human-readable release layer in `reports/`:
-
-- `reports/index.html`: quick dashboard
-- `reports/final_boundary_model_summary.md`: concise release notes
-- `reports/release_manifest.json`: machine-readable artifact map
-- `reports/figures/`: summary figures, operating-matrix visuals, and boundary heatmaps
-
-This layer is generated from the locked final artifacts by [scripts/generate_release_assets.py](scripts/generate_release_assets.py).
-
-## Studio
-
-Use [app/final_boundary_gui.py](app/final_boundary_gui.py) as the local Streamlit studio. It is designed as a user-facing workspace rather than a project console:
-
-- browse the preset library and operating maps
-- create fresh surface previews for saved or custom operating points
-- start a quick check, balanced refresh, or full build from guided options
-- open slice views and review the temperature balance across the exchanger
-
-## Missing Interior Fields
-
-Do not generate target-derived synthetic interior labels from the same operating point and then call that validation. That would leak the answer back into the benchmark.
-
-The defensible fallback now in the repo is:
-
-- export dense model-predicted pseudo-volume fields for visualization and inspection
-- run an interior physics-consistency audit over PDE and interface residuals
-
-Use [scripts/export_interior_fields_3d.py](scripts/export_interior_fields_3d.py) when you need a dense interior field from the locked final model:
-
-```powershell
-.venv_ssp\Scripts\python.exe scripts\export_interior_fields_3d.py --case-id case_016 --output outputs_3d_synthetic_interior_probe\case_016_interior_fields.csv
-```
-
-Use [scripts/audit_interior_physics_3d.py](scripts/audit_interior_physics_3d.py) when you need a physics-consistency report over interior probe points:
-
-```powershell
-.venv_ssp\Scripts\python.exe scripts\audit_interior_physics_3d.py --case-id case_016 --output-json outputs_3d_synthetic_interior_probe\case_016_interior_physics_audit.json
-```
-
-The export output is not independent ground truth. It is suitable for plots, qualitative inspection, and downstream engineering review. The audit JSON is the honest fallback signal for missing interior volume CSVs.
+- keep using the studio for scenario testing
+- add new unseen solver exports
+- compare them against the existing prediction and audit pipeline
+- extend the final model without rebuilding the whole workspace
