@@ -1,0 +1,31 @@
+{
+  "headline_metrics": {
+    "holdout_combined_rmse_K": 0.7802308412626286,
+    "mean_Q_total_rel_error_pct": 8.170624674206607,
+    "mean_energy_balance_gap_pct": 11.677697271778325,
+    "cv_mean_combined_rmse_K": 0.7238159652094197
+  },
+  "artifacts": {
+    "checkpoint": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\\checkpoints\\best_model_3d.pt",
+    "temperature_calibration": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_qagg_positivep_optphys2_10ep_dpcal_walltune\\boundary_temperature_calibration.json",
+    "validation_summary": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_final_validation_optphys2_10ep_dpcal_walltune_tempcal\\final_validation_summary.json",
+    "validation_case_summary": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_final_validation_optphys2_10ep_dpcal_walltune_tempcal\\final_validation_case_summary.csv",
+    "cv_summary": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_conditioned_case_cv_final\\case_cv_summary.json",
+    "cv_case_summary": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_conditioned_case_cv_final\\case_cv_case_summary.csv",
+    "interior_audit": "C:\\Users\\TL\\Desktop\\PINN\\outputs_3d_synthetic_interior_probe\\case_016_interior_physics_audit.json",
+    "dashboard_html": "C:\\Users\\TL\\Desktop\\PINN\\reports\\index.html",
+    "release_notes": "C:\\Users\\TL\\Desktop\\PINN\\reports\\final_boundary_model_summary.md"
+  },
+  "figures": {
+    "scorecard": "C:\\Users\\TL\\Desktop\\PINN\\reports\\figures\\release_scorecard.png",
+    "cv_case_rmse": "C:\\Users\\TL\\Desktop\\PINN\\reports\\figures\\case_cv_rmse.png",
+    "holdout_breakdown": "C:\\Users\\TL\\Desktop\\PINN\\reports\\figures\\holdout_breakdown.png",
+    "case_016_focus": "C:\\Users\\TL\\Desktop\\PINN\\reports\\figures\\case_016_focus.png",
+    "dataset_operating_matrix": "C:\\Users\\TL\\Desktop\\PINN\\reports\\figures\\dataset_operating_matrix.png",
+    "dataset_boundary_heatmaps": "C:\\Users\\TL\\Desktop\\PINN\\reports\\figures\\dataset_boundary_heatmaps.png"
+  },
+  "notes": {
+    "scope": "Boundary-validated synthetic surrogate with interior physics audit.",
+    "limitation": "No independent interior CFD field holdout is included yet."
+  }
+}

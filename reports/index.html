@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Heat Exchanger Studio</title>
+  <style>
+    body { font-family: "Segoe UI", Arial, sans-serif; margin: 0; background: linear-gradient(180deg, #f5f1e8 0%, #ffffff 100%); color: #102a43; }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 32px 24px 48px; }
+    .hero { margin-bottom: 24px; }
+    .hero h1 { margin: 0 0 8px; font-size: 32px; }
+    .hero p { margin: 0; color: #486581; max-width: 820px; line-height: 1.55; }
+    .steps { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 14px; margin: 24px 0 32px; }
+    .card { background: #102a43; color: white; border-radius: 18px; padding: 18px; box-shadow: 0 10px 30px rgba(16, 42, 67, 0.12); }
+    .card .label { font-size: 18px; font-weight: 700; }
+    .card .value { font-size: 15px; margin-top: 10px; line-height: 1.6; color: rgba(255,255,255,0.82); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    figure { margin: 0; background: white; border-radius: 18px; padding: 14px; box-shadow: 0 10px 30px rgba(16, 42, 67, 0.08); }
+    img { width: 100%; border-radius: 12px; }
+    figcaption { margin-top: 10px; color: #486581; font-size: 14px; }
+    .links { margin-top: 28px; padding: 18px; background: white; border-radius: 18px; box-shadow: 0 10px 30px rgba(16, 42, 67, 0.08); }
+    .links a { display: inline-block; margin-right: 16px; margin-bottom: 10px; color: #0f609b; text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Heat Exchanger Studio</h1>
+      <p>A calmer front end for browsing presets, creating new previews, and opening slice views from one place.</p>
+    </section>
+    <section class="steps">
+      <div class="card"><div class="label">1. Browse presets</div><div class="value">Explore the operating library and compare saved surface maps.</div></div>
+      <div class="card"><div class="label">2. Create a preview</div><div class="value">Enter an operating point or pick a preset to generate a fresh wall-temperature view.</div></div>
+      <div class="card"><div class="label">3. Start a build</div><div class="value">Launch a quick refresh or a full rebuild directly from the workspace.</div></div>
+    </section>
+    <section class="grid">
+      <figure><img src="figures/dataset_operating_matrix.png" alt="dataset operating matrix"><figcaption>Operating-space view of the preset library.</figcaption></figure>
+      <figure><img src="figures/dataset_boundary_heatmaps.png" alt="dataset boundary heatmaps"><figcaption>Reference surface patterns from the preset library.</figcaption></figure>
+    </section>
+    <section class="links">
+      <a href="final_boundary_model_summary.md">Studio Guide</a>
+      <a href="../app/final_boundary_gui.py">Launch Studio</a>
+    </section>
+  </div>
+</body>
+</html>
