@@ -1,4 +1,4 @@
-# PINN for a Double-Pipe Heat Exchanger
+# PINN for a Heat Exchanger
 
 This workspace contains a research-grade scaffold for a Physics-Informed Neural Network grounded in the provided COMSOL report export and CSV temperature fields.
 
